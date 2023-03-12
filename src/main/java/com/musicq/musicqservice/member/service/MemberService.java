@@ -1,10 +1,8 @@
-package com.musicq.musicqservice.service;
+package com.musicq.musicqservice.member.service;
 
-import com.musicq.musicqservice.dto.MemberSignUpDto;
+import com.musicq.musicqservice.member.dto.MemberSignUpDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
 
 @Service
 public interface MemberService {

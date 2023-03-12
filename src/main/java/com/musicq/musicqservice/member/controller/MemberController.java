@@ -1,7 +1,7 @@
-package com.musicq.musicqservice.controller;
+package com.musicq.musicqservice.member.controller;
 
-import com.musicq.musicqservice.dto.MemberSignUpDto;
-import com.musicq.musicqservice.service.MemberService;
+import com.musicq.musicqservice.member.dto.MemberSignUpDto;
+import com.musicq.musicqservice.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

@@ -1,4 +1,4 @@
-package com.musicq.musicqservice.dto;
+package com.musicq.musicqservice.member.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

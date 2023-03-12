@@ -1,4 +1,4 @@
-package com.musicq.musicqservice.dto;
+package com.musicq.musicqservice.member.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

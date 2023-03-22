@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
 @Getter
@@ -14,13 +15,15 @@ public class MemberSignUpDto {
     @NotNull
     private String id;
 
-    @NotNull
+    @Setter
     private String email;
 
     @NotNull
+    @Setter
     private String nickname;
 
     @NotNull
+    @Setter
     private String password;
 
     @Builder.Default

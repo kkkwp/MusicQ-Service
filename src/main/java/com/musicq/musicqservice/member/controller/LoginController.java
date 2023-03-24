@@ -23,14 +23,7 @@ import lombok.extern.log4j.Log4j2;
 public class LoginController {
 	private final LoginService loginService;
 
-	@Value("${jwt.header}")
-	private String jwtHeader;
-
-	@Value("${Cookie-Max-Age}")
-	private int maxAge;
-	@Value("${Cookie-Header}")
-	private String cookieHeader;
-
+	// 로컬 로그인
 	@PostMapping("/login")
 	public ResponseEntity<LoginResDto> login(
 		@Valid @RequestBody LoginDto loginDto,
@@ -41,4 +34,8 @@ public class LoginController {
 
 		return loginResult;
 	}
+
+	// 자동 로그인
+
+	// OAuth 로그인
 }

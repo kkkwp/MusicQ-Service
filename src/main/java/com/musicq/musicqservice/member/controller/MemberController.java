@@ -18,6 +18,7 @@ public class MemberController {
     private final MemberService memberService;
 
 
+    // 회원 가입
     @PostMapping("/member")
     public ResponseEntity<String> signup(
             @Valid @RequestBody MemberSignUpDto memberInfo
@@ -26,6 +27,11 @@ public class MemberController {
     }
 
 
+    // 회원 정보 수정
+
+    // 회원 탈퇴
+
+    // ID 존재 여부 - 회원 가입 때 중복확인
     @GetMapping("/id/{id}")
     public ResponseEntity<String> checkId(
             @Valid @PathVariable("id") String id
@@ -33,6 +39,7 @@ public class MemberController {
         return memberService.checkId(id);
     }
 
+    // email 존재 여부 - email 중복확인
     @GetMapping("/email/{email}")
     public ResponseEntity<String> checkEmail(
             @Valid @PathVariable("email") String email
@@ -40,6 +47,7 @@ public class MemberController {
         return memberService.checkEmail(email);
     }
 
+    // Nickname 존재 여부 - nickname 중복 확인
     @GetMapping("/nickname/{nickname}")
     public ResponseEntity<String> checkNickname(
             @Valid @PathVariable("nickname") String nickname

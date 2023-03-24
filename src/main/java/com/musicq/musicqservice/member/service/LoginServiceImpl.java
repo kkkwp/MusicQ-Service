@@ -35,7 +35,7 @@ public class LoginServiceImpl implements LoginService{
 
 	private final RedisTemplate<String, String> redisTemplate;
 
-	// 로그인
+	// 로컬 로그인
 	@Override
 	public ResponseEntity<LoginResDto> login(LoginDto loginDto, HttpServletRequest request) {
 		// Cookie 에 Access Token 존재 여부
@@ -94,14 +94,15 @@ public class LoginServiceImpl implements LoginService{
 			} else if (idCount == 0){
 				// id가 존재하지 않는 경우
 				loginResDto.setResult("Wrong ID");
+			} else {
+				// id count가 1과 0이 아니면 이미 중복된 회원이 생겨버린 것
+				log.warn("회원 중복되어 있어 이미 이멀전씌");
 			}
-			else {
-				log.warn("뭔가 잘못됨");
-			}
-		// Cookie에 Access Token이 존재하는 경우
-		} /*else{
-		}*/
+		} else {
+			log.warn("Cookie에 AccessToken이 있으면 login Controller로 오면 안되용");
+		}
 		log.warn(loginResDto);
+		// 로그인 성공 결과와 헤더에 Cookie 생성 후 AccessToken 발급
 		return new ResponseEntity<>(loginResDto, httpHeaders, status);
 	}
 

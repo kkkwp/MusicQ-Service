@@ -27,6 +27,16 @@ public class MemberServiceImpl implements MemberService{
         return response;
     }
 
+    // 회원 정보 조회
+    @Override
+    public ResponseEntity<String> memberInfoCheck(String id) {
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:81/v1/members/member/{id}", String.class, id);
+        log.info(response.getStatusCode());
+        log.info(response.getHeaders());
+        log.info(response.getBody());
+
+        return response;
+    }
 
     // id 존재 여부
     @Override

@@ -26,6 +26,13 @@ public class MemberController {
         return memberService.signup(memberInfo);
     }
 
+    // 회원 정보 조회
+    @GetMapping("/member/{id}")
+    public ResponseEntity<String> memberInfoCheck(
+        @Valid @PathVariable("id") String id
+    ){
+        return memberService.memberInfoCheck(id);
+    }
 
     // 회원 정보 수정
 

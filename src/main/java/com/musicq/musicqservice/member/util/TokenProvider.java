@@ -9,7 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -30,8 +31,8 @@ public class TokenProvider implements InitializingBean {
 		this.key = Keys.hmacShaKeyFor(keyBytes);
 	}
 
-	// Access 토큰 발급 메서드
-	public String createAccessToken(ResponseEntity<String> response){
+	// Access Token 발급 메서드
+	public String createAccessToken(ResponseEntity<String> response) {
 		// Redis 사용으로 인한 유효기간 의미 X
 		//long now = (new Date()).getTime();
 		//Date accessValidity = new Date(now + this.accessTokenValidityInMilliseconds * 1000);
@@ -52,6 +53,26 @@ public class TokenProvider implements InitializingBean {
 			.compact();
 
 		return accessToken;
+	}
+
+	// Access Token에서 id 조회 메서드
+	public String getId(String accessToken) {
+		Claims claims = parseClaims(accessToken);
+
+		if (claims.get("id") != null) {
+			return claims.get("id").toString();
+		} else {
+			return null;
+		}
+	}
+
+	// 토큰 복호화 메서드
+	private Claims parseClaims(String accessToken) {
+		try {
+			return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+		} catch (ExpiredJwtException e) {
+			return e.getClaims();
+		}
 	}
 
 	// refresh 토큰 발급 메서드 - 아마 사용안할 듯?

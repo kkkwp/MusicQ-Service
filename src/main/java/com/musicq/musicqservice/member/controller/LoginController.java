@@ -2,6 +2,7 @@ package com.musicq.musicqservice.member.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,13 +28,23 @@ public class LoginController {
 	@PostMapping("/login")
 	public ResponseEntity<LoginResDto> login(
 		@Valid @RequestBody LoginDto loginDto,
-		HttpServletRequest requset
-	){
+		HttpServletRequest request
+	) {
 		// 로그인 결과
-		ResponseEntity<LoginResDto> loginResult = loginService.login(loginDto, requset);
+		ResponseEntity<LoginResDto> loginResult = loginService.login(loginDto, request);
 
 		return loginResult;
 	}
+
+	// 자동 로그인
+	@GetMapping("/token")
+	public ResponseEntity<LoginResDto> autoLogin(HttpServletRequest request) {
+		// 로그인 결과
+		ResponseEntity<LoginResDto> loginResult = loginService.autoLogin(request);
+
+		return loginResult;
+	}
+
 
 	// 자동 로그인
 

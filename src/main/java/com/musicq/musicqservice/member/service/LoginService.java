@@ -11,16 +11,14 @@ import jakarta.servlet.http.HttpServletRequest;
 @Service
 public interface LoginService {
 	ResponseEntity<LoginResDto> login(LoginDto loginDto, HttpServletRequest request);
+	ResponseEntity<LoginResDto> autoLogin(HttpServletRequest request);
 
 	String checkPassword(String id);
 	ResponseEntity<String> checkId(String id);
 
-	String chkCookieInToken(HttpServletRequest request);
-
+	String chkTokenInCookie(HttpServletRequest request);
 	String setCookieToken(String accessToken);
 
 	boolean saveToken(String id, String accessToken);
-
 	String getToken(String id);
-
 }

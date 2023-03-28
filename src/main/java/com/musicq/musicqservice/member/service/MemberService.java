@@ -9,9 +9,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface MemberService {
-    ResponseEntity<String> signup(MemberSignUpDto memberSignUpDto);
-    ResponseEntity<String> memberInfoCheck(String id);
-    ResponseEntity<String> checkId(String id);
-    ResponseEntity<String> checkEmail(String email);
-    ResponseEntity<String> checkNickname(String nickname);
+	ResponseEntity<String> signup(MemberSignUpDto memberSignUpDto);
+
+	ResponseEntity<String> memberInfoCheck(String id);
+
+	ResponseEntity<String> unregister(String id);
+
+	ResponseEntity<String> checkId(String id);
+
+	ResponseEntity<String> checkEmail(String email);
+
+	ResponseEntity<String> checkNickname(String nickname);
 }

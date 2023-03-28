@@ -37,6 +37,12 @@ public class MemberController {
     // 회원 정보 수정
 
     // 회원 탈퇴
+    @DeleteMapping("/member/{id}")
+    public ResponseEntity<String> unregister(
+        @Valid @PathVariable("id") String id
+    ) {
+        return memberService.unregister(id);
+    }
 
     // ID 존재 여부 - 회원 가입 때 중복확인
     @GetMapping("/id/{id}")

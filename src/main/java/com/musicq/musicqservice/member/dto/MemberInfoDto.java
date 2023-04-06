@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MemberSignUpDto {
+public class MemberInfoDto {
     @NotNull
     private String id;
 
@@ -27,6 +27,7 @@ public class MemberSignUpDto {
     private String password;
 
     @Builder.Default
-    private final MemberImageDto memberImageDto = MemberImageDto.builder().build();
+    @Setter
+    private MemberImageDto memberImage = MemberImageDto.builder().build();
 
 }

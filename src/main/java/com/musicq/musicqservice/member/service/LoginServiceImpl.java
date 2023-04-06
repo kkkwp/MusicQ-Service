@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.musicq.musicqservice.member.dto.LoginDto;
-import com.musicq.musicqservice.member.dto.LoginResDto;
+import com.musicq.musicqservice.member.dto.ResultResDto;
 import com.musicq.musicqservice.member.util.Encoder;
 import com.musicq.musicqservice.member.util.TokenProvider;
 
@@ -36,7 +36,7 @@ public class LoginServiceImpl implements LoginService {
 
 	// 로컬 로그인
 	@Override
-	public ResponseEntity<LoginResDto> login(LoginDto loginDto, HttpServletRequest request) {
+	public ResponseEntity<ResultResDto> login(LoginDto loginDto, HttpServletRequest request) {
 		// Cookie 에 Access Token 존재 여부
 		String accessToken = chkTokenInCookie(request);
 
@@ -46,7 +46,7 @@ public class LoginServiceImpl implements LoginService {
 		HttpStatus status = HttpStatus.UNAUTHORIZED;
 
 		// body에 출력할 login에 대한 결과
-		LoginResDto loginResDto = new LoginResDto();
+		ResultResDto resultResDto = new ResultResDto();
 
 		// Cookie에 Access Token이 없는 경우
 		if (accessToken == null) {
@@ -80,18 +80,18 @@ public class LoginServiceImpl implements LoginService {
 
 						// 결과
 						status = HttpStatus.OK;
-						loginResDto.setResult("Success");
+						resultResDto.setResult("Success");
 					} else {
 						status = HttpStatus.BAD_REQUEST;
-						loginResDto.setResult("교통사고");
+						resultResDto.setResult("교통사고");
 					}
 				} else {
 					// 입력된 ID가 존재하나 그 ID에 해당되는 PW와 입력한 PW가 일치하지 않는 경우
-					loginResDto.setResult("Wrong PW");
+					resultResDto.setResult("Wrong PW");
 				}
 			} else if (idCount == 0) {
 				// id가 존재하지 않는 경우
-				loginResDto.setResult("Wrong ID");
+				resultResDto.setResult("Wrong ID");
 			} else {
 				// id count가 1과 0이 아니면 이미 중복된 회원이 생겨버린 것
 				log.warn("회원 중복되어 있어 이미 이멀전씌");
@@ -100,16 +100,16 @@ public class LoginServiceImpl implements LoginService {
 			log.warn("Cookie에 AccessToken이 있으면 login Controller로 오면 안돼용");
 		}
 
-		log.warn(loginResDto);
+		log.warn(resultResDto);
 
 		// 로그인 성공 결과와 헤더에 Cookie 생성 후 AccessToken 발급
-		return new ResponseEntity<>(loginResDto, httpHeaders, status);
+		return new ResponseEntity<>(resultResDto, httpHeaders, status);
 	}
 
 	// 자동 로그인
 	// 로그인 유효기간(1일)이 지나지 않았다면 자동로그인을 해주고, 1일을 연장해준다.
 	@Override
-	public ResponseEntity<LoginResDto> autoLogin(HttpServletRequest request) {
+	public ResponseEntity<ResultResDto> autoLogin(HttpServletRequest request) {
 		// Cookie에 Access Token 존재 여부
 		String tokenInCookie = chkTokenInCookie(request);
 
@@ -120,7 +120,7 @@ public class LoginServiceImpl implements LoginService {
 		HttpStatus status = HttpStatus.UNAUTHORIZED;
 
 		// body에 출력할 login에 대한 결과
-		LoginResDto loginResDto = new LoginResDto();
+		ResultResDto resultResDto = new ResultResDto();
 
 		// Cookie에 Access Token이 있다면
 		if (tokenInCookie != null) {
@@ -139,16 +139,16 @@ public class LoginServiceImpl implements LoginService {
 					if(redisSaveToken) {
 						// 결과
 						status = HttpStatus.OK;
-						loginResDto.setResult("Auto Login Success");
+						resultResDto.setResult("Auto Login Success");
 					} else {
 						status = HttpStatus.BAD_REQUEST;
-						loginResDto.setResult("교통사고");
+						resultResDto.setResult("교통사고");
 					}
 				} else {
 					// Redis에 존재하지 않는다면 로그인 유효기간이 지났단 뜻이므로 일반 로그인으로 리다이렉트
 					// 이 응답 코드는 요청한 리소스의 URI가 일시적으로 변경되었음을 의미
 					status = HttpStatus.FOUND;
-					loginResDto.setResult("Login Redirect");
+					resultResDto.setResult("Login Redirect");
 				}
 			} else {
 				log.warn("토큰에 해당하는 id가 없다고?");
@@ -157,10 +157,10 @@ public class LoginServiceImpl implements LoginService {
 			log.warn("Cookie에 Access Token이 존재해야 자동 로그인 가능해용");
 		}
 
-		log.warn(loginResDto);
+		log.warn(resultResDto);
 
 		// 자동 로그인 성공 결과 반환
-		return new ResponseEntity<>(loginResDto, status);
+		return new ResponseEntity<>(resultResDto, status);
 	}
 
 	// id 존재 여부

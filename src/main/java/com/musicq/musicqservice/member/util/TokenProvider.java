@@ -1,7 +1,6 @@
 package com.musicq.musicqservice.member.util;
 
 import java.security.Key;
-import java.util.Date;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
@@ -74,21 +73,4 @@ public class TokenProvider implements InitializingBean {
 			return e.getClaims();
 		}
 	}
-
-	// refresh 토큰 발급 메서드 - 아마 사용안할 듯?
-	/*public String createRefreshToken(ResponseEntity<String> response){
-		long now = (new Date()).getTime();
-		Date refreshValidity = new Date(now + this.refreshTokenValidityInMilliseconds * 1000);
-
-		JSONObject jsonId = new JSONObject(response.getBody());
-		String subId = jsonId.getString("id");
-
-		String refreshToken = Jwts.builder()
-			.setSubject(subId)
-			.setExpiration(refreshValidity)
-			.signWith(key, SignatureAlgorithm.HS256)
-			.compact();
-
-		return refreshToken;
-	}*/
 }

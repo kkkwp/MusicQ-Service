@@ -1,7 +1,9 @@
 package com.musicq.musicqservice.member.controller;
 
-import com.musicq.musicqservice.member.dto.MemberSignUpDto;
+import com.musicq.musicqservice.member.dto.MemberInfoDto;
 import com.musicq.musicqservice.member.service.MemberService;
+import com.musicq.musicqservice.member.util.UploaderLocal;
+import com.musicq.musicqservice.member.util.UploderS3;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -16,12 +19,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/members")
 public class MemberController {
     private final MemberService memberService;
-
+    private final UploaderLocal uploaderLocal;
+    private final UploderS3 uploderS3;
 
     // 회원 가입
     @PostMapping("/member")
     public ResponseEntity<String> signup(
-            @Valid @RequestBody MemberSignUpDto memberInfo
+            @Valid @RequestBody MemberInfoDto memberInfo
     ){
         return memberService.signup(memberInfo);
     }
@@ -35,6 +39,13 @@ public class MemberController {
     }
 
     // 회원 정보 수정
+    @PutMapping("/member/{id}")
+    public ResponseEntity<Object> memberInfoChanges(
+        @Valid @PathVariable("id") String id,
+        @Valid @RequestBody MemberInfoDto memberInfoDto
+    ){
+        return memberService.memberInfoChange(id, memberInfoDto);
+    }
 
     // 회원 탈퇴
     @DeleteMapping("/member/{id}")
@@ -42,6 +53,22 @@ public class MemberController {
         @Valid @PathVariable("id") String id
     ) {
         return memberService.unregister(id);
+    }
+
+    // 이미지 업로드 to local
+    @PostMapping("/member/upload/local")
+    public ResponseEntity<?> uploadToLocal(
+        @Valid MultipartFile[] uploadFiles
+    ){
+        return uploaderLocal.uploadToLocal(uploadFiles);
+    }
+
+    // 이미지 업로드 to S3
+    @PostMapping("member/upload/S3")
+    public ResponseEntity<?> uploadToS3(
+        @Valid MultipartFile uploadFile
+    ){
+        return uploderS3.uploadToS3(uploadFile);
     }
 
     // ID 존재 여부 - 회원 가입 때 중복확인
@@ -61,10 +88,11 @@ public class MemberController {
     }
 
     // Nickname 존재 여부 - nickname 중복 확인
-    @GetMapping("/nickname/{nickname}")
+    @GetMapping("/nickname/{id}/{nickname}")
     public ResponseEntity<String> checkNickname(
+            @Valid @PathVariable("id") String id,
             @Valid @PathVariable("nickname") String nickname
     ){
-        return memberService.checkNickname(nickname);
+        return memberService.checkNickname(id, nickname);
     }
 }

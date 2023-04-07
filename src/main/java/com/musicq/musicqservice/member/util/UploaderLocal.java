@@ -21,8 +21,8 @@ public class UploaderLocal {
 	@Value("${MusicQ-Default_Profile_Img_Path}")
 	private String uploadPath;
 
-	@Value("${MusicQ-Default_Profile_Img_Name}")
-	private String defaultImgName;
+	/*@Value("${MusicQ-Default_Profile_Img_Name}")
+	private String defaultImgName;*/
 
 
 	// 로컬에 디렉토리 생성하는 함수

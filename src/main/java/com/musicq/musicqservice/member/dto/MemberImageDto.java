@@ -12,10 +12,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class MemberImageDto {
-    private String uuid;
-    @Builder.Default
-    private String path = "default";
-    @Builder.Default
-    private String profile_img = "default.img";
-}
 
+	@Builder.Default
+	private String uuid = "Default_Img_";
+
+	@Builder.Default
+	private String path = "C:\\Users\\user\\Pictures\\Saved Pictures";
+
+	@Builder.Default
+	private String profile_img = "MusicQ.png";
+}

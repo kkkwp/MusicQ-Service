@@ -1,13 +1,5 @@
 package com.musicq.musicqservice.member.service;
 
-import com.musicq.musicqservice.member.dto.MemberInfoDto;
-import com.musicq.musicqservice.member.dto.ResultResDto;
-import com.musicq.musicqservice.member.util.Encoder;
-import com.musicq.musicqservice.member.util.UploaderLocal;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +11,13 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.musicq.musicqservice.member.dto.MemberInfoDto;
+import com.musicq.musicqservice.member.dto.ResultResDto;
+import com.musicq.musicqservice.member.util.Encoder;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+
 @Log4j2
 @RequiredArgsConstructor
 @Service
@@ -28,7 +27,9 @@ public class MemberServiceImpl implements MemberService {
 	// 회원 가입
 	@Override
 	public ResponseEntity<String> signup(MemberInfoDto memberInfoDto) {
-
+		log.warn(memberInfoDto.getMemberImage().getPath());
+		log.warn(memberInfoDto.getMemberImage().getProfile_img());
+		log.warn(memberInfoDto.getMemberImage().getUuid());
 		memberInfoDto.setPassword(Encoder.encodeStr(memberInfoDto.getPassword()));
 		ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:81/v1/members/member",
 			memberInfoDto, String.class);

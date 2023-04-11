@@ -58,7 +58,7 @@ public class UploaderLocal {
 				String uuid = UUID.randomUUID().toString();
 
 				//저장할 파일 이름 중간에 _를 이용해서 구분
-				String saveName = uploadPath + realUploadDir + uuid + fileName;
+				String saveName = uploadPath + File.separator + realUploadDir + File.separator + uuid + fileName;
 
 				File saveFile = new File(saveName);
 

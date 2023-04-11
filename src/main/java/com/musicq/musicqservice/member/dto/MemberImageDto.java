@@ -17,7 +17,7 @@ public class MemberImageDto {
 	private String uuid = "Default_Img_";
 
 	@Builder.Default
-	private String path = "C:\\Users\\user\\Pictures\\Saved Pictures";
+	private String path = "C:\\Users\\user\\Desktop\\UserImg";
 
 	@Builder.Default
 	private String profile_img = "MusicQ.png";

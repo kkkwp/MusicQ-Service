@@ -11,7 +11,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import com.musicq.musicqservice.member.dto.MemberInfoDto;
+import com.musicq.musicqservice.member.dto.MemberInfoChangeDto;
+import com.musicq.musicqservice.member.dto.MemberSignUpInfoDto;
 import com.musicq.musicqservice.member.dto.ResultResDto;
 import com.musicq.musicqservice.member.util.Encoder;
 
@@ -26,13 +27,13 @@ public class MemberServiceImpl implements MemberService {
 
 	// 회원 가입
 	@Override
-	public ResponseEntity<String> signup(MemberInfoDto memberInfoDto) {
-		log.warn(memberInfoDto.getMemberImage().getPath());
-		log.warn(memberInfoDto.getMemberImage().getProfile_img());
-		log.warn(memberInfoDto.getMemberImage().getUuid());
-		memberInfoDto.setPassword(Encoder.encodeStr(memberInfoDto.getPassword()));
+	public ResponseEntity<String> signup(MemberSignUpInfoDto memberSignUpInfoDto) {
+		log.warn(memberSignUpInfoDto.getMemberImage().getPath());
+		log.warn(memberSignUpInfoDto.getMemberImage().getProfile_img());
+		log.warn(memberSignUpInfoDto.getMemberImage().getUuid());
+		memberSignUpInfoDto.setPassword(Encoder.encodeStr(memberSignUpInfoDto.getPassword().toLowerCase()));
 		ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:81/v1/members/member",
-			memberInfoDto, String.class);
+			memberSignUpInfoDto, String.class);
 		log.info(response.getStatusCode());
 		log.info(response.getHeaders());
 		log.info(response.getBody());
@@ -50,13 +51,36 @@ public class MemberServiceImpl implements MemberService {
 		return response;
 	}
 
+	// 비밀 번호 수정
+	@Override
+	public ResponseEntity<Object> changPassword(String id, String password) {
+		try {
+			String EnPassword = Encoder.encodeStr(password.toLowerCase());
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			HttpEntity<String> request = new HttpEntity<>(EnPassword, headers);
+
+			ResponseEntity<Object> response = restTemplate.exchange("http://localhost:81/v1/members/password/{id}",
+				HttpMethod.PUT, request, Object.class, id);
+			return response;
+
+		} catch (NullPointerException e) {
+			log.warn(e.getStackTrace());
+			log.warn(e.getMessage());
+			log.warn("React 에서 값 잘못 준거임 ㅅㄱ.");
+			ResultResDto failResponse = new ResultResDto("Invalid Variable");
+
+			return ResponseEntity.badRequest().body(failResponse);
+		}
+	}
+
 	// 회원 정보 수정
 	@Override
-	public ResponseEntity<Object> memberInfoChange(String id, MemberInfoDto memberInfoDto) {
+	public ResponseEntity<Object> memberInfoChange(String id, MemberInfoChangeDto memberInfoChangeDto) {
 		ResponseEntity<Object> response = null;
 		try {
 			JSONObject jsonNicknameInfo = new JSONObject(
-				checkNickname(memberInfoDto.getId(), memberInfoDto.getNickname()).getBody());
+				checkNickname(id, memberInfoChangeDto.getNickname()).getBody());
 			// DB 에 사용자가 입력한 닉네임의 개수
 			String nickNameCount = jsonNicknameInfo.getString("count");
 
@@ -65,12 +89,12 @@ public class MemberServiceImpl implements MemberService {
 
 			// 닉네임이 중복되는지 React에서도 물어보지만 Spring에 서도 한번 더 유효성 검사
 			// count 가 1 이여도 현재 닉네임에서 변경하지 않고 그대로 request를 보내도 본인의 닉네임에 대해서는 허용
-			if (nickNameCount.equals("0") || memberInfoDto.getNickname().equals(currentNickname)) {
+			if (nickNameCount.equals("0") || memberInfoChangeDto.getNickname().equals(currentNickname)) {
 
 				// 그냥 restTemplate.put은 반환 값이 없어서 exchange 함수를 사용해서 반환값을 받기 위해서 헤더와 요청 body를 생성
 				HttpHeaders headers = new HttpHeaders();
 				headers.setContentType(MediaType.APPLICATION_JSON);
-				HttpEntity<MemberInfoDto> request = new HttpEntity<>(memberInfoDto, headers);
+				HttpEntity<MemberInfoChangeDto> request = new HttpEntity<>(memberInfoChangeDto, headers);
 
 				response = restTemplate.exchange("http://localhost:81/v1/members/member/{id}", HttpMethod.PUT,
 					request, Object.class, id);

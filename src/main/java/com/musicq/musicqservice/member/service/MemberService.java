@@ -1,17 +1,20 @@
 package com.musicq.musicqservice.member.service;
 
-import com.musicq.musicqservice.member.dto.MemberInfoDto;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.musicq.musicqservice.member.dto.MemberInfoChangeDto;
+import com.musicq.musicqservice.member.dto.MemberSignUpInfoDto;
+
 @Service
 public interface MemberService {
-	ResponseEntity<String> signup(MemberInfoDto memberInfoDto);
+	ResponseEntity<String> signup(MemberSignUpInfoDto memberSignUpInfoDto);
 
 	ResponseEntity<String> memberInfoCheck(String id);
 
-	ResponseEntity<Object> memberInfoChange(String id, MemberInfoDto memberInfoDto);
+	ResponseEntity<Object> memberInfoChange(String id, MemberInfoChangeDto memberInfoChangeDto);
+
+	ResponseEntity<Object> changPassword(String id, String password);
 
 	ResponseEntity<String> unregister(String id);
 

@@ -39,5 +39,20 @@ public class RoomServiceImpl implements RoomService{
 
 		return response;
 	}
+
+	@Override
+	public ResponseEntity<Object> searchAll(Integer page) {
+		String baseUrl = "http://localhost:81/v1/rooms/all";
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append(baseUrl).append("?page=").append(page);
+		String searchingUrl = stringBuilder.toString();
+		ResponseEntity<Object> response = restTemplate.getForEntity(searchingUrl,
+			Object.class);
+		log.info(response.getStatusCode());
+		log.info(response.getHeaders());
+		log.info(response.getBody());
+
+		return response;
+	}
 }
 

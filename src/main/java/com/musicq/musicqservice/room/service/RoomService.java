@@ -10,4 +10,6 @@ public interface RoomService {
 	public ResponseEntity<String> enter(String roomId);
 
 	public ResponseEntity<String> deleteRoom(String roomId);
+
+	public ResponseEntity<Object> searchAll(Integer page);
 }

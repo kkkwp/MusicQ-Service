@@ -18,7 +18,7 @@ public class MusicController {
 
 	private final MusicService musicService;
 
-	@GetMapping("/searchAllMusics")
+	@GetMapping("/all")
 	public ResponseEntity<String> searchAll(){
 
 		return musicService.searchAllMusics();

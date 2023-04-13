@@ -1,5 +1,6 @@
 package com.musicq.musicqservice.member.service;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.json.JSONObject;
@@ -11,8 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.musicq.musicqservice.common.Exception.ErrorCode;
+import com.musicq.musicqservice.common.ResponseDto;
 import com.musicq.musicqservice.member.dto.LoginDto;
-import com.musicq.musicqservice.member.dto.ResultResDto;
 import com.musicq.musicqservice.member.util.Encoder;
 import com.musicq.musicqservice.member.util.TokenProvider;
 
@@ -36,24 +38,18 @@ public class LoginServiceImpl implements LoginService {
 
 	// 로컬 로그인
 	@Override
-	public ResponseEntity<ResultResDto> login(LoginDto loginDto, HttpServletRequest request) {
+	public ResponseEntity<ResponseDto> login(LoginDto loginDto, HttpServletRequest request) {
 		// Cookie 에 Access Token 존재 여부
 		String accessToken = chkTokenInCookie(request);
 
 		// Cookie를 set 하기 위한 Http header
 		HttpHeaders httpHeaders = new HttpHeaders();
 
-		HttpStatus status = HttpStatus.UNAUTHORIZED;
-
-		// body에 출력할 login에 대한 결과
-		ResultResDto resultResDto = new ResultResDto();
-
 		// Cookie에 Access Token이 없는 경우
 		if (accessToken == null) {
 			// id 존재 여부
 			JSONObject jsonIdCount = new JSONObject(checkId(loginDto.getId()).getBody());
 			long idCount = jsonIdCount.getLong("count");
-			log.warn(idCount);
 
 			// DB에 Client에서 일치한 사용자 정보가 있을 때
 			if (idCount == 1) {
@@ -79,99 +75,122 @@ public class LoginServiceImpl implements LoginService {
 						httpHeaders.add(HttpHeaders.SET_COOKIE, setCookieToken(accessToken));
 
 						// 결과
-						status = HttpStatus.OK;
-						resultResDto.setResult("Success");
+						HttpStatus status = HttpStatus.OK;
+						ResponseDto response = ResponseDto.builder().success(true).build();
+						// 로그인 성공 결과와 헤더에 Cookie 생성 후 AccessToken 발급
+						return new ResponseEntity<>(response, httpHeaders, status);
 					} else {
-						status = HttpStatus.BAD_REQUEST;
-						resultResDto.setResult("교통사고");
+						HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+						ResponseDto response = ResponseDto.builder()
+							.success(false)
+							.error(ErrorCode.INTERNAL_SERVER_ERROR)
+							.build();
+						return new ResponseEntity<>(response, status);
 					}
 				} else {
 					// 입력된 ID가 존재하나 그 ID에 해당되는 PW와 입력한 PW가 일치하지 않는 경우
-					resultResDto.setResult("Wrong PW");
+					HttpStatus status = HttpStatus.BAD_REQUEST;
+					ResponseDto response = ResponseDto.builder()
+						.success(false)
+						.error(ErrorCode.NOT_EXIST_PW)
+						.build();
+					return new ResponseEntity<>(response, status);
 				}
 			} else if (idCount == 0) {
 				// id가 존재하지 않는 경우
-				resultResDto.setResult("Wrong ID");
+				HttpStatus status = HttpStatus.BAD_REQUEST;
+				ResponseDto response = ResponseDto.builder()
+					.success(false)
+					.error(ErrorCode.NOT_EXIST_ID)
+					.build();
+				return new ResponseEntity<>(response, status);
 			} else {
-				// id count가 1과 0이 아니면 이미 중복된 회원이 생겨버린 것
 				log.warn("회원 중복되어 있어 이미 이멀전씌");
+				HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+				ResponseDto response = ResponseDto.builder()
+					.success(false)
+					.error(ErrorCode.INTERNAL_SERVER_ERROR)
+					.build();
+				return new ResponseEntity<>(response, status);
 			}
 		} else {
-			log.warn("Cookie에 AccessToken이 있으면 login Controller로 오면 안돼용");
+			log.warn("Cookie에 AccessToken이 있으면 login 요청에 바로오면 안돼용");
+			HttpStatus status = HttpStatus.NOT_ACCEPTABLE;
+			ResponseDto response = ResponseDto.builder()
+				.success(false)
+				.error(ErrorCode.EXIST_TOKEN_IN_COOKIE)
+				.build();
+			return new ResponseEntity<>(response, status);
 		}
-
-		log.warn(resultResDto);
-
-		// 로그인 성공 결과와 헤더에 Cookie 생성 후 AccessToken 발급
-		return new ResponseEntity<>(resultResDto, httpHeaders, status);
 	}
 
 	// 자동 로그인
 	// 로그인 유효기간(1일)이 지나지 않았다면 자동로그인을 해주고, 1일을 연장해준다.
 	@Override
-	public ResponseEntity<ResultResDto> autoLogin(HttpServletRequest request) {
+	public ResponseEntity<ResponseDto> autoLogin(HttpServletRequest request) {
 		// Cookie에 Access Token 존재 여부
 		String tokenInCookie = chkTokenInCookie(request);
-
-		String id = "";
-
-		String tokenInRedis;
-
-		HttpStatus status = HttpStatus.UNAUTHORIZED;
-
-		// body에 출력할 login에 대한 결과
-		ResultResDto resultResDto = new ResultResDto();
 
 		// Cookie에 Access Token이 있다면
 		if (tokenInCookie != null) {
 			// Access Token으로부터 id 추출
-			id = tokenProvider.getId(tokenInCookie);
+			String id = tokenProvider.getId(tokenInCookie);
 
 			if (id != null) {
 				// Redis에서 id에 해당하는 토큰을 얻어옴
-				tokenInRedis = getToken(id);
+				String tokenInRedis = getToken(id);
 
 				// Redis에 (해당 id - 해당 토큰)이 존재 한다면
 				if (tokenInRedis.equals(tokenInCookie)) {
 					// 유효기간 1일 늘려서 Redis에 다시 저장
 					boolean redisSaveToken = saveToken(id, tokenInRedis);
 
-					if(redisSaveToken) {
+					if (redisSaveToken) {
 						// 결과
-						status = HttpStatus.OK;
-						resultResDto.setResult("Auto Login Success");
+						HttpStatus status = HttpStatus.OK;
+						ResponseDto response = ResponseDto.builder().success(true).build();
+						return new ResponseEntity<>(response, status);
 					} else {
-						status = HttpStatus.BAD_REQUEST;
-						resultResDto.setResult("교통사고");
+						HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+						ResponseDto response = ResponseDto.builder()
+							.success(false)
+							.error(ErrorCode.INTERNAL_SERVER_ERROR)
+							.build();
+						return new ResponseEntity<>(response, status);
 					}
 				} else {
 					// Redis에 존재하지 않는다면 로그인 유효기간이 지났단 뜻이므로 일반 로그인으로 리다이렉트
 					// 이 응답 코드는 요청한 리소스의 URI가 일시적으로 변경되었음을 의미
-					status = HttpStatus.FOUND;
-					resultResDto.setResult("Login Redirect");
+					HttpStatus status = HttpStatus.FOUND;
+					ResponseDto response = ResponseDto.builder().success(false).error(ErrorCode.EXPIRED_TOKEN).build();
+					return new ResponseEntity<>(response, status);
 				}
 			} else {
 				log.warn("토큰에 해당하는 id가 없다고?");
+				HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+				ResponseDto response = ResponseDto.builder()
+					.success(false)
+					.error(ErrorCode.INTERNAL_SERVER_ERROR)
+					.build();
+				return new ResponseEntity<>(response, status);
 			}
 		} else {
 			log.warn("Cookie에 Access Token이 존재해야 자동 로그인 가능해용");
+			HttpStatus status = HttpStatus.NOT_ACCEPTABLE;
+			ResponseDto response = ResponseDto.builder()
+				.success(false)
+				.error(ErrorCode.NOT_EXIST_TOKEN_IN_COOKIE)
+				.build();
+			return new ResponseEntity<>(response, status);
 		}
-
-		log.warn(resultResDto);
-
-		// 자동 로그인 성공 결과 반환
-		return new ResponseEntity<>(resultResDto, status);
 	}
 
 	// id 존재 여부
 	@Override
 	public ResponseEntity<String> checkId(String id) {
-		ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:81/v1/members/id/{id}",
+		ResponseEntity<String> result = restTemplate.getForEntity("http://localhost:81/v1/members/id/{id}",
 			String.class, id);
-		log.info(response.getStatusCode());
-		log.info(response.getHeaders());
-		log.info(response.getBody());
-		return response;
+		return result;
 	}
 
 	// 로그인 시 입력한 id를 가지고 DB에 저장된 Member 비밀 번호와 현재 입력한 Member의 비밀번호를 비교하기 위한 메서드
@@ -179,10 +198,6 @@ public class LoginServiceImpl implements LoginService {
 	public String checkPassword(String id) {
 		ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:81/v1/members/password/{id}",
 			String.class, id);
-		log.info(response.getStatusCode());
-		log.info(response.getHeaders());
-		log.info(response.getBody());
-
 		JSONObject jsonPassword = new JSONObject(response.getBody());
 		String password = jsonPassword.getString("password");
 
@@ -205,13 +220,18 @@ public class LoginServiceImpl implements LoginService {
 		// Cookie 값 중 해당 서비스에서 발급한 헤더의 이름에 맞는 Cookie값이 있는지 확인
 		String accessToken = null;
 
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if (cookie.getName().equals(jwtHeader)) {
-					accessToken = cookie.getValue();
-					break;
+		try {
+			if (cookies != null) {
+				for (Cookie cookie : cookies) {
+					if (cookie.getName().equals(jwtHeader)) {
+						accessToken = cookie.getValue();
+						break;
+					}
 				}
 			}
+		} catch (NullPointerException e) {
+			// 예외 처리
+			accessToken = null;
 		}
 		return accessToken;
 	}
@@ -232,8 +252,12 @@ public class LoginServiceImpl implements LoginService {
 	// Redis에 (id - access token) 쌍이 존재한다면 그 access token을 반환하는 메서드
 	@Override
 	public String getToken(String id) {
-		String accessToken = redisTemplate.opsForValue().get(id).trim();
-		return accessToken;
+		try {
+			String accessToken = Objects.requireNonNull(redisTemplate.opsForValue().get(id)).trim();
+			return accessToken;
+		} catch (NullPointerException e) {
+			// 예외 처리
+			return null;
+		}
 	}
-
 }

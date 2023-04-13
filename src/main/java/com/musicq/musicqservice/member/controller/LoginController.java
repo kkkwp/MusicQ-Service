@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.musicq.musicqservice.common.ResponseDto;
 import com.musicq.musicqservice.member.dto.LoginDto;
-import com.musicq.musicqservice.member.dto.ResultResDto;
 import com.musicq.musicqservice.member.service.LoginService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,25 +25,24 @@ public class LoginController {
 
 	// 로컬 로그인
 	@PostMapping("/login")
-	public ResponseEntity<ResultResDto> login(
+	public ResponseEntity<ResponseDto> login(
 		@Valid @RequestBody LoginDto loginDto,
 		HttpServletRequest request
 	) {
 		// 로그인 결과
-		ResponseEntity<ResultResDto> loginResult = loginService.login(loginDto, request);
+		ResponseEntity<ResponseDto> loginResult = loginService.login(loginDto, request);
 
 		return loginResult;
 	}
 
 	// 자동 로그인
 	@GetMapping("/token")
-	public ResponseEntity<ResultResDto> autoLogin(HttpServletRequest request) {
+	public ResponseEntity<ResponseDto> autoLogin(HttpServletRequest request) {
 		// 로그인 결과
-		ResponseEntity<ResultResDto> loginResult = loginService.autoLogin(request);
+		ResponseEntity<ResponseDto> loginResult = loginService.autoLogin(request);
 
 		return loginResult;
 	}
-
 
 	// 자동 로그인
 

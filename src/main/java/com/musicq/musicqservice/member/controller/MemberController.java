@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.musicq.musicqservice.common.ResponseDto;
+import com.musicq.musicqservice.member.dto.ChangePwDto;
 import com.musicq.musicqservice.member.dto.MemberInfoChangeDto;
 import com.musicq.musicqservice.member.dto.MemberSignUpInfoDto;
 import com.musicq.musicqservice.member.dto.ResultResDto;
@@ -36,7 +38,7 @@ public class MemberController {
 
 	// 회원 가입
 	@PostMapping("/member")
-	public ResponseEntity<String> signup(
+	public ResponseEntity<ResponseDto> signup(
 		@Valid @RequestBody MemberSignUpInfoDto memberInfo
 	) {
 		return memberService.signup(memberInfo);
@@ -44,7 +46,7 @@ public class MemberController {
 
 	// 회원 정보 조회
 	@GetMapping("/member/{id}")
-	public ResponseEntity<String> memberInfoCheck(
+	public ResponseEntity<ResponseDto> memberInfoCheck(
 		@Valid @PathVariable("id") String id
 	) {
 		return memberService.memberInfoCheck(id);
@@ -52,7 +54,7 @@ public class MemberController {
 
 	// 회원 정보 수정
 	@PutMapping("/member/{id}")
-	public ResponseEntity<Object> memberInfoChanges(
+	public ResponseEntity<ResponseDto> memberInfoChanges(
 		@Valid @PathVariable("id") String id,
 		@Valid @RequestBody MemberInfoChangeDto memberInfoChangeDto
 	) {
@@ -61,16 +63,16 @@ public class MemberController {
 
 	// 패스워드 수정
 	@PutMapping("/password/{id}")
-	public ResponseEntity<Object> changePassword(
+	public ResponseEntity<ResponseDto> changePassword(
 		@Valid @PathVariable("id") String id,
-		@Valid @RequestBody String password
+		@Valid @RequestBody ChangePwDto changePwDto
 	) {
-		return memberService.changPassword(id, password);
+		return memberService.changePassword(id, changePwDto);
 	}
 
 	// 회원 탈퇴
 	@DeleteMapping("/member/{id}")
-	public ResponseEntity<String> unregister(
+	public ResponseEntity<ResponseDto> unregister(
 		@Valid @PathVariable("id") String id
 	) {
 		return memberService.unregister(id);
@@ -94,7 +96,7 @@ public class MemberController {
 
 	// ID 존재 여부 - 회원 가입 때 중복확인
 	@GetMapping("/id/{id}")
-	public ResponseEntity<String> checkId(
+	public ResponseEntity<ResponseDto> checkId(
 		@Valid @PathVariable("id") String id
 	) {
 		return memberService.checkId(id);
@@ -102,15 +104,16 @@ public class MemberController {
 
 	// email 존재 여부 - email 중복확인
 	@GetMapping("/email/{email}")
-	public ResponseEntity<String> checkEmail(
-		@Valid @PathVariable("email") String email
+	public ResponseEntity<ResponseDto> checkEmail(
+		@Valid @PathVariable("email")
+		String email
 	) {
 		return memberService.checkEmail(email);
 	}
 
 	// Nickname 존재 여부 - nickname 중복 확인
 	@GetMapping("/nickname/{id}/{nickname}")
-	public ResponseEntity<String> checkNickname(
+	public ResponseEntity<ResponseDto> checkNickname(
 		@Valid @PathVariable("id") String id,
 		@Valid @PathVariable("nickname") String nickname
 	) {

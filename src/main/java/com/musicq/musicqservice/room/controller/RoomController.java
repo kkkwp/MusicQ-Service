@@ -1,10 +1,11 @@
 package com.musicq.musicqservice.room.controller;
 
-import javax.crypto.SecretKey;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.musicq.musicqservice.room.dto.RoomEnterDto;
+import com.musicq.musicqservice.room.dto.RoomCreateDto;
 import com.musicq.musicqservice.room.service.RoomService;
 
-import io.openvidu.java.client.OpenVidu;
+import io.openvidu.java.client.OpenViduHttpException;
+import io.openvidu.java.client.OpenViduJavaClientException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -29,13 +32,33 @@ public class RoomController {
 
 	private final RoomService roomService;
 
-	// 오픈비두 서버 관련 변수
-	@Value("${openvidu.url}")
-	private String OPENVIDU_URL;
-	@Value("${openvidu.secret}")
-	private String SECRET;
+	// 방 생성(POST)
+	@CrossOrigin("*")
+	@PostMapping("/create")
+	public ResponseEntity<String> createSession(
+		@Valid @RequestBody(required = false) Map<String, Object> params,
+		@Valid HttpServletRequest request
+	) throws OpenViduHttpException, OpenViduJavaClientException {
+		return roomService.createSession(params, request);
+	}
 
-	// private final OpenVidu openVidu = new OpenVidu(OPENVIDU_URL, SECRET);
+	@PostMapping("/create/{sessionId}")
+	public ResponseEntity<String> createRoom(
+		@Valid @PathVariable String sessionId,
+		@Valid @RequestBody RoomCreateDto roomCreateDto
+	) {
+		return roomService.createRoom(sessionId, roomCreateDto);
+	}
+
+	// 방 입장(POST)
+	@CrossOrigin("*")
+	@PostMapping("/sessions/{sessionId}")
+	public ResponseEntity<String> createConnection(
+		@Valid @PathVariable("sessionId") String sessionId,
+		@Valid @RequestBody(required = false) Map<String, Object> params
+	) throws OpenViduJavaClientException, OpenViduHttpException {
+		return roomService.createConnection(sessionId, params);
+	}
 
 	// 방 입장(GET)
 	// TODO - 병주 : 아직 오픈비두 라이브러리와 검증 로직은 사용하지 않았음.

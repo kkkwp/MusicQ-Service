@@ -5,20 +5,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
+@Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoomEnterDto {
-	@NotNull
-	private String roomId;
+public class RoomCreateDto {
 
 	@NotNull
 	private String roomTitle;
-
-	@NotNull
-	private Long count;
 
 	@NotNull
 	private String gameName;

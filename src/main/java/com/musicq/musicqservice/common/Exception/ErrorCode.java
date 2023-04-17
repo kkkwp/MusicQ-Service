@@ -20,11 +20,15 @@ public enum ErrorCode {
 	DUPLICATE_NICKNAME(400, "Member-007", "이미 존재하는 NickName이 입력된 경우."),
 	DUPLICATE_EMAIL(400, "Member-008", "이미 존재하는 Email이 입력된 경우."),
 	INVALID_INPUT_ID(400, "Member-009", "아이디는 알파벳과 숫자가 포함되지 않거나 6~20자리의 입력이 아니거나 공백이 포함된 경우."),
-	INVALID_INPUT_PW(400, "Member-0010", "비밀번호에 영문, 숫자, 특수문자가 모두 포함되지 않거나 공백이나 다른 문자가 입력됬거나 8~16자리 입력이 아닌 경우"),
+	INVALID_INPUT_PW(400, "Member-010", "비밀번호에 영문, 숫자, 특수문자가 모두 포함되지 않거나 공백이나 다른 문자가 입력됬거나 8~16자리 입력이 아닌 경우."),
 	INVALID_INPUT_NICKNAME(400, "Member-011", "닉네임이 특수문자나 공백을 포함하거나 2~10자리 입력이 아닌 경우."),
 	INVALID_INPUT_EMAIL(400, "Member-012", "이메일 형식이 올바르지 않은 경우."),
-	NOT_EQUALS_INPUT_CHANGED_PW(400, "Member-013", "변경할 비밀번호 입력과 확인하는 입력이 일치하지 않는 경우"),
-	NOT_EQUALS_INPUT_CURRENT_PW(400, "Member-014", "현재 입력한 비밀번호가 실제 현재 비밀번호와 일치하지 않는 경우");
+	NOT_EQUALS_INPUT_CHANGED_PW(400, "Member-013", "변경할 비밀번호 입력과 확인하는 입력이 일치하지 않는 경우."),
+	NOT_EQUALS_INPUT_CURRENT_PW(400, "Member-014", "현재 입력한 비밀번호가 실제 현재 비밀번호와 일치하지 않는 경우."),
+
+	DUPLICATE_ROOM(400, "Room-001", "방이 이미 존재하는 경우."),
+	NOT_EXIST_ROOM(404, "Room-002", "방이 존재하지 않는 경우."),
+	OVERCAPACITY(400, "Room-003", "방에 인원이 가득 찬 경우.");
 
 	private int status;
 	private String code;

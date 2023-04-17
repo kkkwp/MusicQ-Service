@@ -2,7 +2,6 @@ package com.musicq.musicqservice.room.controller;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.musicq.musicqservice.common.ResponseDto;
 import com.musicq.musicqservice.room.dto.RoomCreateDto;
 import com.musicq.musicqservice.room.service.RoomService;
 
@@ -43,7 +43,7 @@ public class RoomController {
 	}
 
 	@PostMapping("/create/{sessionId}")
-	public ResponseEntity<String> createRoom(
+	public ResponseEntity<ResponseDto> createRoom(
 		@Valid @PathVariable String sessionId,
 		@Valid @RequestBody RoomCreateDto roomCreateDto
 	) {
@@ -52,22 +52,12 @@ public class RoomController {
 
 	// 방 입장(POST)
 	@CrossOrigin("*")
-	@PostMapping("/sessions/{sessionId}")
-	public ResponseEntity<String> createConnection(
+	@PostMapping("/enter/{sessionId}")
+	public ResponseEntity<ResponseDto> enterRoom(
 		@Valid @PathVariable("sessionId") String sessionId,
 		@Valid @RequestBody(required = false) Map<String, Object> params
 	) throws OpenViduJavaClientException, OpenViduHttpException {
-		return roomService.createConnection(sessionId, params);
-	}
-
-	// 방 입장(GET)
-	// TODO - 병주 : 아직 오픈비두 라이브러리와 검증 로직은 사용하지 않았음.
-	// TODO : 방이 존재하는지 조회 후, 방이 존재한다면 그 방에 데이터를 꺼내주어 입장할 수 있도록 한다.
-	@GetMapping("/enter/{roomId}")
-	public ResponseEntity<String> enter(
-		@Valid @PathVariable("roomId") String roomId
-	) {
-		return roomService.enter(roomId);
+		return roomService.enterRoom(sessionId, params);
 	}
 
 	// 방 삭제(DELETE)

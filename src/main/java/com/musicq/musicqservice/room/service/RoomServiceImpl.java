@@ -1,5 +1,6 @@
 package com.musicq.musicqservice.room.service;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.musicq.musicqservice.common.Exception.ErrorCode;
+import com.musicq.musicqservice.common.ResponseDto;
 import com.musicq.musicqservice.room.dto.RoomCreateDto;
 
 import io.openvidu.java.client.Connection;
@@ -28,6 +31,9 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @Service
 public class RoomServiceImpl implements RoomService {
+	// host를 제외하고, 방의 최대 인원
+	private static final int LIMIT = 5;
+
 	private final RestTemplate restTemplate;
 
 	// 오픈비두 서버 관련 변수
@@ -42,7 +48,6 @@ public class RoomServiceImpl implements RoomService {
 		this.openVidu = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
 	}
 
-	// 방 생성 - session 생성
 	@Override
 	public ResponseEntity<String> createSession(Map<String, Object> params, HttpServletRequest request)
 		throws OpenViduJavaClientException, OpenViduHttpException {
@@ -60,9 +65,7 @@ public class RoomServiceImpl implements RoomService {
 		log.info(response.getBody());
 		return response;
 	}
-
-	// 방 입장 - connection 생성
-	// TODO: Redis update
+  
 	public ResponseEntity<String> createConnection(String sessionId, Map<String, Object> params)
 		throws OpenViduJavaClientException, OpenViduHttpException {
 		Session session = openVidu.getActiveSession(sessionId);
@@ -74,16 +77,61 @@ public class RoomServiceImpl implements RoomService {
 		return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
 	}
 
-	// 방 정보 조회
 	@Override
-	public ResponseEntity<String> enter(String roomId) {
-		ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:81/v1/rooms/enter/{roomId}",
-			String.class, roomId);
-		log.info(response.getStatusCode());
-		log.info(response.getHeaders());
-		log.info(response.getBody());
+	public ResponseEntity<String> createSession(Map<String, Object> params, HttpServletRequest request)
+		throws OpenViduJavaClientException, OpenViduHttpException {
+		SessionProperties properties = SessionProperties.fromJson(params).build();
+		Session session = openVidu.createSession(properties);
+		return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
+	}
 
-		return response;
+	@Override
+	public ResponseEntity<ResponseDto> createRoom(String sessionId, RoomCreateDto roomCreateDto) {
+		try {
+			ResponseEntity<Object> result = restTemplate.postForEntity(
+				"http://localhost:81/v1/rooms/create/{sessionId}",
+				roomCreateDto, Object.class, sessionId);
+			ResponseDto<Object> response = ResponseDto.builder()
+				.success(true)
+				.data(result.getBody())
+				.build();
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			ResponseDto<Object> response = ResponseDto.builder()
+				.success(false)
+				.error(ErrorCode.DUPLICATE_ROOM)
+				.build();
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	public ResponseEntity<ResponseDto> enterRoom(String sessionId, Map<String, Object> params)
+		throws OpenViduJavaClientException, OpenViduHttpException {
+		Session session = openVidu.getActiveSession(sessionId);
+		if (session == null) {
+			ResponseDto<Object> response = ResponseDto.builder()
+				.success(false)
+				.error(ErrorCode.NOT_EXIST_ROOM)
+				.build();
+			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+		}
+
+		List<Connection> activeConnections = session.getActiveConnections();
+		if (activeConnections.size() >= LIMIT) {
+			ResponseDto<Object> response = ResponseDto.builder()
+				.success(false)
+				.error(ErrorCode.OVERCAPACITY)
+				.build();
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+		}
+
+		ConnectionProperties properties = ConnectionProperties.fromJson(params).build();
+		Connection connection = session.createConnection(properties);
+		ResponseDto<Object> response = ResponseDto.builder()
+			.success(true)
+			.data(connection.getToken())
+			.build();
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@Override
@@ -100,9 +148,7 @@ public class RoomServiceImpl implements RoomService {
 	@Override
 	public ResponseEntity<Object> searchAll(Integer page) {
 		String baseUrl = "http://localhost:81/v1/rooms/all";
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append(baseUrl).append("?page=").append(page);
-		String searchingUrl = stringBuilder.toString();
+		String searchingUrl = baseUrl + "?page=" + page;
 		ResponseEntity<Object> response = restTemplate.getForEntity(searchingUrl,
 			Object.class);
 		log.info(response.getStatusCode());

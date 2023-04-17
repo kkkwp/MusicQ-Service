@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 
+import com.musicq.musicqservice.common.ResponseDto;
 import com.musicq.musicqservice.room.dto.RoomCreateDto;
 
 import io.openvidu.java.client.OpenViduHttpException;
@@ -15,13 +16,11 @@ public interface RoomService {
 		OpenViduJavaClientException,
 		OpenViduHttpException;
 
-	ResponseEntity<String> createRoom(String sessionId, RoomCreateDto roomCreateDto);
+	ResponseEntity<ResponseDto> createRoom(String sessionId, RoomCreateDto roomCreateDto);
 
-	ResponseEntity<String> createConnection(String sessionId, Map<String, Object> params) throws
+	ResponseEntity<ResponseDto> enterRoom(String sessionId, Map<String, Object> params) throws
 		OpenViduJavaClientException,
 		OpenViduHttpException;
-
-	ResponseEntity<String> enter(String roomId);
 
 	ResponseEntity<String> deleteRoom(String roomId);
 

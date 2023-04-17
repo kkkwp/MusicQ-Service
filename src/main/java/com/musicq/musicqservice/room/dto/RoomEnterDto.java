@@ -18,8 +18,5 @@ public class RoomEnterDto {
 	private String roomTitle;
 
 	@NotNull
-	private Long count;
-
-	@NotNull
 	private String gameName;
 }

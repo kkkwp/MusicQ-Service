@@ -57,35 +57,6 @@ public class RoomServiceImpl implements RoomService {
 	}
 
 	@Override
-	public ResponseEntity<String> createRoom(String sessionId, RoomCreateDto roomCreateDto) {
-		ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:81/v1/rooms/create/{sessionId}",
-			roomCreateDto, String.class, sessionId);
-		log.info(response.getStatusCode());
-		log.info(response.getHeaders());
-		log.info(response.getBody());
-		return response;
-	}
-  
-	public ResponseEntity<String> createConnection(String sessionId, Map<String, Object> params)
-		throws OpenViduJavaClientException, OpenViduHttpException {
-		Session session = openVidu.getActiveSession(sessionId);
-		if (session == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		ConnectionProperties properties = ConnectionProperties.fromJson(params).build();
-		Connection connection = session.createConnection(properties);
-		return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
-	}
-
-	@Override
-	public ResponseEntity<String> createSession(Map<String, Object> params, HttpServletRequest request)
-		throws OpenViduJavaClientException, OpenViduHttpException {
-		SessionProperties properties = SessionProperties.fromJson(params).build();
-		Session session = openVidu.createSession(properties);
-		return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
-	}
-
-	@Override
 	public ResponseEntity<ResponseDto> createRoom(String sessionId, RoomCreateDto roomCreateDto) {
 		try {
 			ResponseEntity<Object> result = restTemplate.postForEntity(

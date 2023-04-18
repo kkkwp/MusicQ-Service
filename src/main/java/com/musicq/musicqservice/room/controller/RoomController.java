@@ -1,5 +1,6 @@
 package com.musicq.musicqservice.room.controller;
 
+import java.time.Duration;
 import java.util.Map;
 
 import org.springframework.http.MediaType;
@@ -84,13 +85,22 @@ public class RoomController {
 	// 근데 Client 측에서 어떤 이벤트 네임을 걸어주면 내가 필요할 때만 응답을 줄 수 있다고 알고 있음.
 	// 추 후에 React를 만든 후에 어떻게 해야될지 고민해봐야될 것 같음.
 	@GetMapping(value = "/all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<Object> searchAll(
+	public Flux<ResponseEntity<Object>> searchAll(
 		@Valid @RequestParam(value = "page", required = false) Integer page
 	) {
 		if (page == null) {
 			page = 1;
 		}
 
-		return Flux.just(roomService.searchAll(page));
+		// 첫 응답을 위해 필요한 Flux 객체
+		Flux<ResponseEntity<Object>> immediate = Flux.just(roomService.searchAll(page));
+
+		// 30초 주기로 응답을 해주기 위한 Flux 객체
+		Flux<ResponseEntity<Object>> delayed = Flux.just(roomService.searchAll(page))
+			.delayElements(Duration.ofSeconds(30))
+			.repeat();
+
+		// 첫 응답은 바로 출력해주고, 그 이후엔 30초 주기로 보내주게 됨.
+		return Flux.concat(immediate, delayed);
 	}
 }

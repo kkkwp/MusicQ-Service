@@ -12,6 +12,7 @@ import com.musicq.musicqservice.member.dto.LoginDto;
 import com.musicq.musicqservice.member.service.LoginService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -44,7 +45,11 @@ public class LoginController {
 		return loginResult;
 	}
 
-	// 자동 로그인
-
-	// OAuth 로그인
+	// 로그 아웃
+	@GetMapping("/logout")
+	public ResponseEntity<ResponseDto> logout(HttpServletRequest request, HttpServletResponse response) {
+		// 로그 아웃
+		ResponseEntity<ResponseDto> logoutResult = loginService.logout(request, response);
+		return logoutResult;
+	}
 }

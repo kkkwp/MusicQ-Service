@@ -16,7 +16,7 @@ public class MusicServiceImpl implements MusicService {
 
 	@Override
 	public ResponseEntity<String> searchAllMusics() {
-		ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:81/v1/musics/searchAllMusics",
+		ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:81/v1/musics/all",
 			String.class);
 		log.info(response.getStatusCode());
 		log.info(response.getHeaders());

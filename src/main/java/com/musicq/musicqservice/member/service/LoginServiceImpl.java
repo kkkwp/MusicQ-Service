@@ -20,6 +20,7 @@ import com.musicq.musicqservice.member.util.TokenProvider;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -135,7 +136,7 @@ public class LoginServiceImpl implements LoginService {
 		if (tokenInCookie != null) {
 			// Access Token으로부터 id 추출
 			String id = tokenProvider.getId(tokenInCookie);
-
+			log.warn(tokenInCookie);
 			if (id != null) {
 				// Redis에서 id에 해당하는 토큰을 얻어옴
 				String tokenInRedis = getToken(id);
@@ -182,6 +183,46 @@ public class LoginServiceImpl implements LoginService {
 				.error(ErrorCode.NOT_EXIST_TOKEN_IN_COOKIE)
 				.build();
 			return new ResponseEntity<>(response, status);
+		}
+	}
+
+	//로그 아웃
+	@Override
+	public ResponseEntity<ResponseDto> logout(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			// Cookie에 Access Token 존재 여부
+			String tokenInCookie = chkTokenInCookie(request);
+			String userId = tokenProvider.getId(tokenInCookie);
+			String existRedisInToken = getToken(userId);
+
+			if (tokenInCookie.equals(existRedisInToken)) {
+				redisTemplate.delete(userId);
+
+				// 클라이언트에게 파괴할 Cookie를 보냄
+				Cookie cookie = new Cookie("Authorization", "");
+				cookie.setPath("/");
+				cookie.setMaxAge(0);
+				response.addCookie(cookie);
+
+				ResponseDto result = ResponseDto.builder()
+					.success(true)
+					.build();
+				return new ResponseEntity<>(result, HttpStatus.OK);
+			} else {
+				ResponseDto result = ResponseDto.builder()
+					.success(false)
+					.error(ErrorCode.INTERNAL_SERVER_ERROR)
+					.build();
+				log.warn("로그아웃을 한다는건 로그인이 이미 되어 있어야 하는데 redis에 없다 진짜 사고임");
+				return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		} catch (Exception e) {
+			ResponseDto result = ResponseDto.builder()
+				.success(false)
+				.error(ErrorCode.INTERNAL_SERVER_ERROR)
+				.build();
+			log.warn(e.getMessage());
+			return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

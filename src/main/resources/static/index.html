@@ -8,7 +8,7 @@
 <script>
     const data = new EventSource("http://localhost:80/api/v1/rooms/all?page=1");
     data.onmessage = event => {
-        console.log(event.body)
+        console.log(event.data)
     }
 </script>
 </body>

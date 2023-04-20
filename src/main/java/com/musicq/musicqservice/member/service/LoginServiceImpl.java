@@ -77,7 +77,10 @@ public class LoginServiceImpl implements LoginService {
 
 						// 결과
 						HttpStatus status = HttpStatus.OK;
-						ResponseDto response = ResponseDto.builder().success(true).build();
+						ResponseDto response = ResponseDto.builder()
+							.success(true)
+							.data(accessToken)
+							.build();
 						// 로그인 성공 결과와 헤더에 Cookie 생성 후 AccessToken 발급
 						return new ResponseEntity<>(response, httpHeaders, status);
 					} else {
@@ -149,7 +152,8 @@ public class LoginServiceImpl implements LoginService {
 					if (redisSaveToken) {
 						// 결과
 						HttpStatus status = HttpStatus.OK;
-						ResponseDto response = ResponseDto.builder().success(true).build();
+						ResponseDto response = ResponseDto.builder()
+							.success(true).build();
 						return new ResponseEntity<>(response, status);
 					} else {
 						HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;

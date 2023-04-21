@@ -23,6 +23,7 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
 		Exception {
 		// Authorization 헤더에서 access token을 추출합니다.
 		String authorizationHeader = request.getHeader("Cookie");
+		log.warn(authorizationHeader);
 
 		if (authorizationHeader == null || !authorizationHeader.startsWith("Authorization=")) {
 			// access token이 없거나, Authorization 으로 시작하지 않으면 허용 X

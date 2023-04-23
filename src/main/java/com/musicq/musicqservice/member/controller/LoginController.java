@@ -38,9 +38,9 @@ public class LoginController {
 
 	// 자동 로그인
 	@GetMapping("/token")
-	public ResponseEntity<ResponseDto> autoLogin(HttpServletRequest request) {
+	public ResponseEntity<ResponseDto> autoLogin(HttpServletRequest request, HttpServletResponse response) {
 		// 로그인 결과
-		ResponseEntity<ResponseDto> loginResult = loginService.autoLogin(request);
+		ResponseEntity<ResponseDto> loginResult = loginService.autoLogin(request, response);
 
 		return loginResult;
 	}

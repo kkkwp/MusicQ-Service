@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +33,6 @@ public class RoomController {
 	private final RoomService roomService;
 
 	// 방 생성(POST)
-	@CrossOrigin("*")
 	@PostMapping("/create")
 	public ResponseEntity<String> createSession(
 		@Valid @RequestBody(required = false) Map<String, Object> params,
@@ -52,7 +50,6 @@ public class RoomController {
 	}
 
 	// 방 입장(POST)
-	@CrossOrigin("*")
 	@PostMapping("/enter/{sessionId}")
 	public ResponseEntity<ResponseDto> enterRoom(
 		@Valid @PathVariable("sessionId") String sessionId,

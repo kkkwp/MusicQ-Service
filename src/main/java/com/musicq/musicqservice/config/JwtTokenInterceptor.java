@@ -30,7 +30,7 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return false;
 		}
-		String accessToken = authorizationHeader.substring(14);
+		String accessToken = authorizationHeader.substring(14).split(";")[0];
 		String userId = tokenProvider.getId(accessToken);
 
 		String tokenFromRedis = redisTemplate.opsForValue().get(userId);

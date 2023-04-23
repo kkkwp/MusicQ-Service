@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface LoginService {
 	ResponseEntity<ResponseDto> login(LoginDto loginDto, HttpServletRequest request);
 
-	ResponseEntity<ResponseDto> autoLogin(HttpServletRequest request);
+	ResponseEntity<ResponseDto> autoLogin(HttpServletRequest request, HttpServletResponse cookieRes);
 
 	ResponseEntity<ResponseDto> logout(HttpServletRequest request, HttpServletResponse response);
 

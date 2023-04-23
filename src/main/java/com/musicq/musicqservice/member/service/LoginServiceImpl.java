@@ -131,7 +131,7 @@ public class LoginServiceImpl implements LoginService {
 	// 자동 로그인
 	// 로그인 유효기간(1일)이 지나지 않았다면 자동로그인을 해주고, 1일을 연장해준다.
 	@Override
-	public ResponseEntity<ResponseDto> autoLogin(HttpServletRequest request) {
+	public ResponseEntity<ResponseDto> autoLogin(HttpServletRequest request, HttpServletResponse cookieRes) {
 		// Cookie에 Access Token 존재 여부
 		String tokenInCookie = chkTokenInCookie(request);
 
@@ -156,6 +156,12 @@ public class LoginServiceImpl implements LoginService {
 							.success(true).build();
 						return new ResponseEntity<>(response, status);
 					} else {
+						// 클라이언트에게 파괴할 Cookie를 보냄
+						Cookie cookie = new Cookie("Authorization", "");
+						cookie.setPath("/");
+						cookie.setMaxAge(0);
+						cookieRes.addCookie(cookie);
+
 						HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 						ResponseDto response = ResponseDto.builder()
 							.success(false)
@@ -166,12 +172,23 @@ public class LoginServiceImpl implements LoginService {
 				} else {
 					// Redis에 존재하지 않는다면 로그인 유효기간이 지났단 뜻이므로 일반 로그인으로 리다이렉트
 					// 이 응답 코드는 요청한 리소스의 URI가 일시적으로 변경되었음을 의미
+					// 클라이언트에게 파괴할 Cookie를 보냄
+					Cookie cookie = new Cookie("Authorization", "");
+					cookie.setPath("/");
+					cookie.setMaxAge(0);
+					cookieRes.addCookie(cookie);
+
 					HttpStatus status = HttpStatus.FOUND;
 					ResponseDto response = ResponseDto.builder().success(false).error(ErrorCode.EXPIRED_TOKEN).build();
 					return new ResponseEntity<>(response, status);
 				}
 			} else {
-				log.warn("토큰에 해당하는 id가 없다고?");
+				// 클라이언트에게 파괴할 Cookie를 보냄
+				Cookie cookie = new Cookie("Authorization", "");
+				cookie.setPath("/");
+				cookie.setMaxAge(0);
+				cookieRes.addCookie(cookie);
+
 				HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 				ResponseDto response = ResponseDto.builder()
 					.success(false)

@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -78,7 +79,7 @@ public class RoomController {
 		return roomService.searchAll(page);
 	}*/
 
-	// 3초 주기로 Client 측으로 실시간 조회를 해줌.
+	// 10초 주기로 Client 측으로 실시간 조회를 해줌.
 	// 근데 Client 측에서 어떤 이벤트 네임을 걸어주면 내가 필요할 때만 응답을 줄 수 있다고 알고 있음.
 	// 추 후에 React를 만든 후에 어떻게 해야될지 고민해봐야될 것 같음.
 	@GetMapping(value = "/all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -89,15 +90,14 @@ public class RoomController {
 			page = 1;
 		}
 
-		// 첫 응답을 위해 필요한 Flux 객체
-		Flux<ResponseEntity<Object>> immediate = Flux.just(roomService.searchAll(page));
+		Integer rambdaPage = page;
+		// 10초 주기로 응답을 해주기 위한 Flux 객체
+		Flux<ResponseEntity<Object>> delayed = Mono.fromCallable(() -> {
+				return roomService.searchAll(rambdaPage);
+			})
+			.repeat()
+			.delayElements(Duration.ofSeconds(10));
 
-		// 30초 주기로 응답을 해주기 위한 Flux 객체
-		Flux<ResponseEntity<Object>> delayed = Flux.just(roomService.searchAll(page))
-			.delayElements(Duration.ofSeconds(30))
-			.repeat();
-
-		// 첫 응답은 바로 출력해주고, 그 이후엔 30초 주기로 보내주게 됨.
-		return Flux.concat(immediate, delayed);
+		return delayed;
 	}
 }

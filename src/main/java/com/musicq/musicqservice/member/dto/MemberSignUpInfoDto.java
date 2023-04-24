@@ -26,7 +26,7 @@ public class MemberSignUpInfoDto {
 
 	@NotNull
 	@NotBlank(message = "닉네임은 필수 입력 값입니다.")
-	@Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9-_]{2,10}$", message = "닉네임은 특수문자를 제외한 2~10자리여야 합니다.")
+	@Pattern(regexp = "^[ㄱ-ㅎ가-힣A-Za-z0-9-_]{2,10}$", message = "닉네임은 특수문자를 제외한 2~10자리여야 합니다.")
 	@Setter
 	private String nickname;
 

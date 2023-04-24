@@ -33,6 +33,10 @@ public class LoginServiceImpl implements LoginService {
 
 	@Value("${Cookie-Max-Age}")
 	private int maxAge;
+
+	@Value("${domainApplication.url}")
+	private String domainUrl;
+
 	private final RestTemplate restTemplate;
 	private final TokenProvider tokenProvider;
 	private final RedisTemplate<String, String> redisTemplate;
@@ -59,7 +63,7 @@ public class LoginServiceImpl implements LoginService {
 
 				if (Encoder.isMatch(loginDto.getPassword(), password)) {
 					ResponseEntity<String> loginDomainRes = restTemplate.postForEntity(
-						"http://localhost:81/v1/members/login", loginDto, String.class);
+						domainUrl + "members/login", loginDto, String.class);
 					log.info(loginDomainRes.getStatusCode());
 					log.info(loginDomainRes.getHeaders());
 					log.info(loginDomainRes.getBody());
@@ -250,7 +254,7 @@ public class LoginServiceImpl implements LoginService {
 	// id 존재 여부
 	@Override
 	public ResponseEntity<String> checkId(String id) {
-		ResponseEntity<String> result = restTemplate.getForEntity("http://localhost:81/v1/members/id/{id}",
+		ResponseEntity<String> result = restTemplate.getForEntity(domainUrl + "members/id/{id}",
 			String.class, id);
 		return result;
 	}
@@ -258,7 +262,7 @@ public class LoginServiceImpl implements LoginService {
 	// 로그인 시 입력한 id를 가지고 DB에 저장된 Member 비밀 번호와 현재 입력한 Member의 비밀번호를 비교하기 위한 메서드
 	@Override
 	public String checkPassword(String id) {
-		ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:81/v1/members/password/{id}",
+		ResponseEntity<String> response = restTemplate.getForEntity(domainUrl + "members/password/{id}",
 			String.class, id);
 		JSONObject jsonPassword = new JSONObject(response.getBody());
 		String password = jsonPassword.getString("password");

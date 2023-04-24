@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,6 +31,10 @@ public class MemberServiceImpl implements MemberService {
 	private final RestTemplate restTemplate;
 
 	// 회원 가입
+
+	@Value("${domainApplication.url}")
+	private String domainUrl;
+
 	@Override
 	public ResponseEntity<ResponseDto> signup(MemberSignUpInfoDto memberSignUpInfoDto) {
 		try {
@@ -44,7 +49,7 @@ public class MemberServiceImpl implements MemberService {
 
 			if (cntExistId + cntExistEmail + cntExistNickName == 0) {
 				memberSignUpInfoDto.setPassword(Encoder.encodeStr(memberSignUpInfoDto.getPassword().toLowerCase()));
-				ResponseEntity<Object> result = restTemplate.postForEntity("http://localhost:81/v1/members/member",
+				ResponseEntity<Object> result = restTemplate.postForEntity(domainUrl + "members/member",
 					memberSignUpInfoDto, Object.class);
 
 				ResponseDto response = ResponseDto.builder()
@@ -94,7 +99,7 @@ public class MemberServiceImpl implements MemberService {
 			JSONObject jsonIdExist = new JSONObject(checkId(id).getBody());
 			log.warn(jsonIdExist);
 			if (jsonIdExist.getJSONObject("data").getLong("count") == 1) {
-				ResponseEntity<Object> result = restTemplate.getForEntity("http://localhost:81/v1/members/member/{id}",
+				ResponseEntity<Object> result = restTemplate.getForEntity(domainUrl + "members/member/{id}",
 					Object.class, id);
 
 				ResponseDto response = ResponseDto.builder()
@@ -133,7 +138,7 @@ public class MemberServiceImpl implements MemberService {
 					HttpEntity<String> request = new HttpEntity<>(changePassword, headers);
 
 					ResponseEntity<Object> result = restTemplate.exchange(
-						"http://localhost:81/v1/members/member/password/{id}", HttpMethod.PUT, request, Object.class,
+						domainUrl + "members/member/password/{id}", HttpMethod.PUT, request, Object.class,
 						id);
 
 					ResponseDto response = ResponseDto.builder().success(true).data(result.getBody()).build();
@@ -184,7 +189,7 @@ public class MemberServiceImpl implements MemberService {
 					headers.setContentType(MediaType.APPLICATION_JSON);
 					HttpEntity<MemberInfoChangeDto> request = new HttpEntity<>(memberInfoChangeDto, headers);
 
-					ResponseEntity<Object> result = restTemplate.exchange("http://localhost:81/v1/members/member/{id}",
+					ResponseEntity<Object> result = restTemplate.exchange(domainUrl + "members/member/{id}",
 						HttpMethod.PUT, request, Object.class, id);
 					log.info(result.getStatusCode());
 					log.info(result.getHeaders());
@@ -217,7 +222,7 @@ public class MemberServiceImpl implements MemberService {
 		try {
 			// restTemplate의 delete 메서드는 반환값이 없기때문에
 			// exchange로 delete해서 반환값을 얻어온다.
-			ResponseEntity<String> result = restTemplate.exchange("http://localhost:81/v1/members/member/{id}",
+			ResponseEntity<String> result = restTemplate.exchange(domainUrl + "members/member/{id}",
 				HttpMethod.DELETE, HttpEntity.EMPTY, String.class, id);
 
 			log.info(result.getStatusCode());
@@ -226,9 +231,9 @@ public class MemberServiceImpl implements MemberService {
 
 			JSONObject jsonResponse = new JSONObject(result.getBody());
 
-			if (jsonResponse.getLong("count") == 0) {
-				Map<String, Long> resData = new HashMap<>();
-				resData.put("count", jsonResponse.getLong("count"));
+			if (jsonResponse.getBoolean("result") == true) {
+				Map<String, Boolean> resData = new HashMap<>();
+				resData.put("result", jsonResponse.getBoolean("result"));
 				ResponseDto response = ResponseDto.builder().success(true).data(resData).build();
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			} else {
@@ -246,7 +251,7 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public ResponseEntity<ResponseDto> checkId(String id) {
 		try {
-			ResponseEntity<String> result = restTemplate.getForEntity("http://localhost:81/v1/members/id/{id}",
+			ResponseEntity<String> result = restTemplate.getForEntity(domainUrl + "members/id/{id}",
 				String.class, id);
 			log.info(result.getStatusCode());
 			log.info(result.getHeaders());
@@ -281,7 +286,7 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public ResponseEntity<ResponseDto> checkEmail(String email) {
 		try {
-			ResponseEntity<String> result = restTemplate.getForEntity("http://localhost:81/v1/members/email/{email}",
+			ResponseEntity<String> result = restTemplate.getForEntity(domainUrl + "members/email/{email}",
 				String.class, email);
 			log.info(result.getStatusCode());
 			log.info(result.getHeaders());
@@ -318,7 +323,7 @@ public class MemberServiceImpl implements MemberService {
 	public ResponseEntity<ResponseDto> checkNickname(String id, String nickname) {
 		try {
 			ResponseEntity<String> result = restTemplate.getForEntity(
-				"http://localhost:81/v1/members/nickname/{id}/{nickname}", String.class, id, nickname);
+				domainUrl + "members/nickname/{id}/{nickname}", String.class, id, nickname);
 
 			JSONObject jsonResponse = new JSONObject(result.getBody());
 			log.warn(jsonResponse);
@@ -351,10 +356,10 @@ public class MemberServiceImpl implements MemberService {
 		}
 	}
 
-	// 회원 정보 수정 - 현재 사용자의 비밀번호가 입력한 현재 비밀번호와 일치하는지
+	// 비밀번호 수정 - 현재 사용자의 비밀번호가 입력한 현재 비밀번호와 일치하는지
 	@Override
 	public String checkPassword(String id) {
-		ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:81/v1/members/password/{id}",
+		ResponseEntity<String> response = restTemplate.getForEntity(domainUrl + "members/password/{id}",
 			String.class, id);
 		log.info(response.getStatusCode());
 		log.info(response.getHeaders());

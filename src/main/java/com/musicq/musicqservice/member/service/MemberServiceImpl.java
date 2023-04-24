@@ -261,6 +261,7 @@ public class MemberServiceImpl implements MemberService {
 
 			if (jsonResponse.getLong("count") == 0) {
 				Map<String, Long> resData = new HashMap<>();
+				resData.put("deletedId", jsonResponse.getLong("deletedId"));
 				resData.put("count", jsonResponse.getLong("count"));
 
 				ResponseDto response = ResponseDto.builder().success(true).data(resData).build();

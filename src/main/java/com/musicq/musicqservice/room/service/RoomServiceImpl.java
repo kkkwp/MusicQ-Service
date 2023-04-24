@@ -36,6 +36,9 @@ public class RoomServiceImpl implements RoomService {
 
 	private final RestTemplate restTemplate;
 
+	@Value("${domainApplication.url}")
+	private String domainUrl;
+
 	// 오픈비두 서버 관련 변수
 	@Value("${openvidu.url}")
 	private String OPENVIDU_URL;
@@ -60,7 +63,7 @@ public class RoomServiceImpl implements RoomService {
 	public ResponseEntity<ResponseDto> createRoom(String sessionId, RoomCreateDto roomCreateDto) {
 		try {
 			ResponseEntity<Object> result = restTemplate.postForEntity(
-				"http://localhost:81/v1/rooms/create/{sessionId}",
+				domainUrl + "rooms/create/{sessionId}",
 				roomCreateDto, Object.class, sessionId);
 			ResponseDto<Object> response = ResponseDto.builder()
 				.success(true)
@@ -107,7 +110,7 @@ public class RoomServiceImpl implements RoomService {
 
 	@Override
 	public ResponseEntity<String> deleteRoom(String roomId) {
-		ResponseEntity<String> response = restTemplate.exchange("http://localhost:81/v1/rooms/delete/{roomId}",
+		ResponseEntity<String> response = restTemplate.exchange(domainUrl + "rooms/delete/{roomId}",
 			HttpMethod.DELETE, HttpEntity.EMPTY, String.class, roomId);
 		log.info(response.getStatusCode());
 		log.info(response.getHeaders());
@@ -118,7 +121,7 @@ public class RoomServiceImpl implements RoomService {
 
 	@Override
 	public ResponseEntity<Object> searchAll(Integer page) {
-		String baseUrl = "http://localhost:81/v1/rooms/all";
+		String baseUrl = domainUrl + "rooms/all";
 		String searchingUrl = baseUrl + "?page=" + page;
 		ResponseEntity<Object> response = restTemplate.getForEntity(searchingUrl,
 			Object.class);

@@ -1,5 +1,6 @@
 package com.musicq.musicqservice.music.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -14,9 +15,12 @@ public class MusicServiceImpl implements MusicService {
 
 	private final RestTemplate restTemplate;
 
+	@Value("${domainApplication.url}")
+	private String domainUrl;
+
 	@Override
 	public ResponseEntity<String> searchAllMusics() {
-		ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:81/v1/musics/all",
+		ResponseEntity<String> response = restTemplate.getForEntity(domainUrl + "musics/all",
 			String.class);
 		log.info(response.getStatusCode());
 		log.info(response.getHeaders());

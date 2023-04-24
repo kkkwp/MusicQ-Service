@@ -265,6 +265,11 @@ public class MemberServiceImpl implements MemberService {
 				resData.put("count", jsonResponse.getLong("count"));
 
 				ResponseDto response = ResponseDto.builder().success(true).data(resData).build();
+				if (jsonResponse.getLong("deletedId") == 1) {
+					response = ResponseDto.builder().success(false).data(resData).error(ErrorCode.DUPLICATE_ID).build();
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+				}
+
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			} else {
 				Map<String, Long> resData = new HashMap<>();

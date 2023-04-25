@@ -4,8 +4,8 @@ FROM openjdk:17-alpine
 
 ARG JAR_FILE=build/libs/*.jar
 
-COPY ${JAR_FILE} test-sample.jar
+COPY ${JAR_FILE} musicq-service.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","/test-sample.jar"]
+ENTRYPOINT ["java","-jar","/musicq-service.jar"]

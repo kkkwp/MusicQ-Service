@@ -1,11 +1,6 @@
 spring:
-  profiles:
-    active: prod
-    group:
-      local: local
-      dev: dev
-      prod: prod
-logging:
-  level:
-    org.hibernate.type.descriptor.sql: trace
-
+  config:
+    import:
+      - security/application.yml
+      - security/application-local.yml
+      - security/application-prod.yml

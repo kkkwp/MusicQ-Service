@@ -18,7 +18,7 @@ spring:
 
   data:
     redis:
-      host: ${{ secrets.REDIS_HOST }}
+      host: 43.200.204.70
       port: 6379
       lettuce:
         pool:
@@ -28,7 +28,7 @@ spring:
     host: smtp.gmail.com # 1
     port: 587 # 2
     username: musicq0503@gmail.com # 3
-    password: ${{ secrets.MAIL_SECRET }}
+    password: fzfrpmuagcikozuf
     properties:
       mail:
         smtp:
@@ -44,9 +44,9 @@ setFromEmail: musicq0503@gmail.com
 
 # JWT 는 임시적으로 넣은 값들
 jwt:
-  header: ${{ secrets.JWT_HEADER }}
-  headerValue: ${{ secrets.JWT_HEADER_VALUE }}
-  secret: ${{ secrets.JWT_SECRETKEY }}
+  header: "Authorization"
+  headerValue: "MusicQ "
+  secret: yuAN8zrNQjsekxB3J5KyHkqKSno4G0SjURrhOyjaKBUNfRkY1fnEAnmmg59MVBWd
 
 Cookie-Max-Age: 864000
 
@@ -60,17 +60,17 @@ cloud:
       bucket: musicq-test-bucket
 
     credentials:
-      accessKey: ${{ secrets.S3_ACCESSKEY }}
-      secretKey: ${{ secrets.S3_SECRETKEY }}
+      accessKey: AKIAZN5PIOFAFYXQLUKP
+      secretKey: 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
 
     stack:
       auto: false
 
 # openvidu server 설정(임시)
 openvidu:
-  url: ${{ secrets.OPENVIDU_URL }}
-  secret: ${{ secrets.OPENVIDU_SECRET }}
+  url: https://drkko.site:8443/
+  secret: MY_SECRET
 
 # 도메인단 server 설정
 domainApplication:
-  url: ${{ secrets.DOMAIN_APP_URL }}
+  url: http://3.39.150.229:81/v1/

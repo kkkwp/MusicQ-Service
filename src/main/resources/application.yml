@@ -4,4 +4,3 @@ spring:
       - classpath:security/application-prod.yml
       - classpath:security/application-local.yml
       - classpath:security/application.yml
-      -

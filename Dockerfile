@@ -2,7 +2,9 @@
 FROM openjdk:17-alpine
 #FROM amazoncorretto:17
 
-ARG JAR_FILE=build/libs/*.jar
+VOLUME /tmp
+
+ARG JAR_FILE=build/libs/MusicQ-Service-0.0.1-SNAPSHOT.jar
 
 COPY ${JAR_FILE} musicq-service.jar
 

@@ -1,6 +1,0 @@
-spring:
-  config:
-    import:
-      - security/application.yml
-      - security/application-local.yml
-      - security/application-prod.yml

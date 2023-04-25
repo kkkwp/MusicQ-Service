@@ -17,6 +17,11 @@ configurations {
 repositories {
     mavenCentral()
 }
+task copyGitSubmodule(type: Copy) {
+    from './security'
+    include '*.yml'
+    into './src/main/resources'
+}
 
 dependencies {
     // https://mvnrepository.com/artifact/org.json/json

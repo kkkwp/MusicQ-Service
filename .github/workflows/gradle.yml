@@ -72,10 +72,8 @@ jobs:
         run: |
           docker images &&
           cd /home/runner/work/MusicQ-Service/MusicQ-Service &&
-          ls &&
           cd drkkoProd &&
-          sed -i "s|${DOCKER_USERNAME}/${IMAGE_NAME}:latest|${DOCKER_USERNAME}/${IMAGE_NAME}:${COMMIT_HASH}|g; s|${DOCKER_USERNAME}/${IMAGE_NAME}:latest|${DOCKER_USERNAME}/${IMAGE_NAME}:${COMMIT_HASH}|g" deploy-service.yml &&
-          ls &&
+          sed -i "s|${DOCKER_USERNAME}/${IMAGE_NAME}:${BEFORE_COMMIT_HASH}|${DOCKER_USERNAME}/${IMAGE_NAME}:${COMMIT_HASH}|g; s|${DOCKER_USERNAME}/${IMAGE_NAME}:latest|${DOCKER_USERNAME}/${IMAGE_NAME}:${COMMIT_HASH}|g" deploy-service.yml &&
           git config --global user.email "${USER_EMAIL_GIT}" &&
           git config --global user.name "${USER_NAME_GIT}" &&  
           git commit -am "Update image tag" &&

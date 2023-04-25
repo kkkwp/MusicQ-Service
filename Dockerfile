@@ -1,6 +1,6 @@
 #FROM adoptopenjdk:17-jre-hotspot
-#FROM openjdk:17-alpine
-FROM amazoncorretto:17
+FROM openjdk:17-alpine
+#FROM amazoncorretto:17
 
 ARG JAR_FILE=build/libs/*.jar
 

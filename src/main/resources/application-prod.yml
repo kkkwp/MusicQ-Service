@@ -1,0 +1,76 @@
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  # 이미지 업로드시 전송되는 파일의 최대 용량
+  servlet:
+    multipart:
+      # 파일의 최대 크기
+      max-file-size: 20MB
+      # 요청 자체의 크기
+      max-request-size: 20MB
+
+  data:
+    redis:
+      host: 43.200.204.70
+      port: 6379
+      lettuce:
+        pool:
+          max-active: 1
+
+  mail:
+    host: smtp.gmail.com # 1
+    port: 587 # 2
+    username: musicq0503@gmail.com # 3
+    password: fzfrpmuagcikozuf
+    properties:
+      mail:
+        smtp:
+          auth: true # 5
+          starttls:
+            enable: true
+
+logging:
+  level:
+    com.musicq: DEBUG
+
+setFromEmail: musicq0503@gmail.com
+
+# JWT 는 임시적으로 넣은 값들
+jwt:
+  header: "Authorization"
+  headerValue: "MusicQ "
+  secret: yuAN8zrNQjsekxB3J5KyHkqKSno4G0SjURrhOyjaKBUNfRkY1fnEAnmmg59MVBWd
+
+Cookie-Max-Age: 864000
+
+# 파일 업로드를 위한 S3 설정
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2 # S3 버킷 지역
+
+    s3:
+      bucket: musicq-test-bucket
+
+    credentials:
+      accessKey: AKIAZN5PIOFAFYXQLUKP
+      secretKey: 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
+
+    stack:
+      auto: false
+
+# openvidu server 설정(임시)
+openvidu:
+  url: https://drkko.site:8443/
+  secret: MY_SECRET
+
+# 도메인단 server 설정
+domainApplication:
+  url: http://3.39.150.229:81/v1/

@@ -24,7 +24,8 @@ public class WebConfig implements WebMvcConfigurer {
 		/* allowedOrigins("*")를 사용하여 모든 출처(Origin)를 허용하고 있기 때문에,
 		서버 측에서 Access-Control-Allow-Origin 응답 헤더의 값이 와일드카드(*)로 설정됩니다. 이 경우, 요청의 credentials 옵션이
 		"include"로 설정되어 있으면, CORS 정책에 의해 차단되기 때문에 정확한 도메인을 설정해야 한다.*/
-		config.addAllowedOrigin("https://drkko.site/");
+		config.addAllowedOrigin(
+			"http://a6ad2408fe72946ac88abacd9480eae3-352911474.ap-northeast-2.elb.amazonaws.com:3500");
 		config.addAllowedMethod("*");
 		config.addAllowedHeader("*");
 

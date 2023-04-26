@@ -143,29 +143,34 @@ public class LoginServiceImpl implements LoginService {
 		if (tokenInCookie != null) {
 			// Access Token으로부터 id 추출
 			String id = tokenProvider.getId(tokenInCookie);
-			log.warn(tokenInCookie);
 			if (id != null) {
 				// Redis에서 id에 해당하는 토큰을 얻어옴
 				String tokenInRedis = getToken(id);
-
+				log.error(tokenInRedis);
+				log.warn(tokenInRedis);
 				// Redis에 (해당 id - 해당 토큰)이 존재 한다면
-				if (tokenInRedis.equals(tokenInCookie)) {
-					// 유효기간 1일 늘려서 Redis에 다시 저장
-					boolean redisSaveToken = saveToken(id, tokenInRedis);
+				try {
+					if (tokenInRedis.equals(tokenInCookie)) {
+						// 유효기간 1일 늘려서 Redis에 다시 저장
+						boolean redisSaveToken = saveToken(id, tokenInRedis);
 
-					if (redisSaveToken) {
-						// 결과
-						HttpStatus status = HttpStatus.OK;
-						ResponseDto response = ResponseDto.builder()
-							.success(true).build();
-						return new ResponseEntity<>(response, status);
+						if (redisSaveToken) {
+							// 결과
+							HttpStatus status = HttpStatus.OK;
+							ResponseDto response = ResponseDto.builder()
+								.success(true).build();
+							return new ResponseEntity<>(response, status);
+						} else {
+							destroyCookieToken(cookieRes);
+							HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+							ResponseDto response = ResponseDto.builder()
+								.success(false)
+								.error(ErrorCode.INTERNAL_SERVER_ERROR)
+								.build();
+							return new ResponseEntity<>(response, status);
+						}
 					} else {
-						// 클라이언트에게 파괴할 Cookie를 보냄
-						Cookie cookie = new Cookie("Authorization", "");
-						cookie.setPath("/");
-						cookie.setMaxAge(0);
-						cookieRes.addCookie(cookie);
-
+						destroyCookieToken(cookieRes);
 						HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 						ResponseDto response = ResponseDto.builder()
 							.success(false)
@@ -173,26 +178,19 @@ public class LoginServiceImpl implements LoginService {
 							.build();
 						return new ResponseEntity<>(response, status);
 					}
-				} else {
+				} catch (Exception e) {
+					// Redis에서 토큰이 null 이면 Exception 이 발생하므로 Catch 문에 Redis에 토큰이 없는 경우를 반환
 					// Redis에 존재하지 않는다면 로그인 유효기간이 지났단 뜻이므로 일반 로그인으로 리다이렉트
 					// 이 응답 코드는 요청한 리소스의 URI가 일시적으로 변경되었음을 의미
 					// 클라이언트에게 파괴할 Cookie를 보냄
-					Cookie cookie = new Cookie("Authorization", "");
-					cookie.setPath("/");
-					cookie.setMaxAge(0);
-					cookieRes.addCookie(cookie);
 
+					destroyCookieToken(cookieRes);
 					HttpStatus status = HttpStatus.FOUND;
 					ResponseDto response = ResponseDto.builder().success(false).error(ErrorCode.EXPIRED_TOKEN).build();
 					return new ResponseEntity<>(response, status);
 				}
 			} else {
-				// 클라이언트에게 파괴할 Cookie를 보냄
-				Cookie cookie = new Cookie("Authorization", "");
-				cookie.setPath("/");
-				cookie.setMaxAge(0);
-				cookieRes.addCookie(cookie);
-
+				destroyCookieToken(cookieRes);
 				HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 				ResponseDto response = ResponseDto.builder()
 					.success(false)
@@ -201,7 +199,6 @@ public class LoginServiceImpl implements LoginService {
 				return new ResponseEntity<>(response, status);
 			}
 		} else {
-			log.warn("Cookie에 Access Token이 존재해야 자동 로그인 가능해용");
 			HttpStatus status = HttpStatus.NOT_ACCEPTABLE;
 			ResponseDto response = ResponseDto.builder()
 				.success(false)
@@ -224,10 +221,7 @@ public class LoginServiceImpl implements LoginService {
 				redisTemplate.delete(userId);
 
 				// 클라이언트에게 파괴할 Cookie를 보냄
-				Cookie cookie = new Cookie("Authorization", "");
-				cookie.setPath("/");
-				cookie.setMaxAge(0);
-				response.addCookie(cookie);
+				destroyCookieToken(response);
 
 				ResponseDto result = ResponseDto.builder()
 					.success(true)
@@ -275,6 +269,15 @@ public class LoginServiceImpl implements LoginService {
 	public String setCookieToken(String accessToken) {
 		String cookieSet = String.format("%s=%s; Path=/; HttpOnly; Max-Age=%d", jwtHeader, accessToken, maxAge);
 		return cookieSet;
+	}
+
+	@Override
+	public void destroyCookieToken(HttpServletResponse response) {
+		Cookie cookie = new Cookie(jwtHeader, null);
+		cookie.setPath("/");
+		cookie.setHttpOnly(true);
+		cookie.setMaxAge(0);
+		response.addCookie(cookie);
 	}
 
 	// 클라이언트의 login 요청 시 Cookie 에 MusicQ 에서 발급한 Access token이 존재한다면 Token을, 아니면 null을 반환하는 메서드
@@ -326,4 +329,5 @@ public class LoginServiceImpl implements LoginService {
 			return null;
 		}
 	}
+
 }

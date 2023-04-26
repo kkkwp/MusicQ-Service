@@ -25,6 +25,8 @@ public interface LoginService {
 
 	String setCookieToken(String accessToken);
 
+	void destroyCookieToken(HttpServletResponse response);
+
 	boolean saveToken(String id, String accessToken);
 
 	String getToken(String id);

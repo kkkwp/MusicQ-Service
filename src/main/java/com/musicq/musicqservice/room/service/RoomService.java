@@ -10,6 +10,7 @@ import com.musicq.musicqservice.room.dto.RoomCreateDto;
 import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface RoomService {
 	ResponseEntity<String> createSession(Map<String, Object> params, HttpServletRequest request) throws
@@ -22,7 +23,9 @@ public interface RoomService {
 		OpenViduJavaClientException,
 		OpenViduHttpException;
 
-	ResponseEntity<String> deleteRoom(String roomId);
+	ResponseEntity<String> deleteRoom(String roomId, HttpServletResponse cookieRes);
 
-	ResponseEntity<Object> searchAll(Integer page);
+	ResponseEntity<Object> searchAll(Integer page, HttpServletResponse cookieRes);
+
+	void destroyCookieToken(HttpServletResponse cookieRes);
 }

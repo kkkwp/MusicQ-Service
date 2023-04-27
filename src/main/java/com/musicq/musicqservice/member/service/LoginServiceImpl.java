@@ -273,11 +273,18 @@ public class LoginServiceImpl implements LoginService {
 
 	@Override
 	public void destroyCookieToken(HttpServletResponse response) {
-		Cookie cookie = new Cookie(jwtHeader, null);
-		cookie.setPath("/");
-		cookie.setHttpOnly(true);
-		cookie.setMaxAge(0);
-		response.addCookie(cookie);
+		Cookie cookie1 = new Cookie(jwtHeader, null);
+		cookie1.setPath("/");
+		cookie1.setHttpOnly(true);
+		cookie1.setMaxAge(0);
+
+		Cookie cookie2 = new Cookie("OVJSESSIONID", null);
+		cookie2.setPath("/");
+		cookie2.setHttpOnly(true);
+		cookie2.setMaxAge(0);
+		
+		response.addCookie(cookie2);
+		response.addCookie(cookie1);
 	}
 
 	// 클라이언트의 login 요청 시 Cookie 에 MusicQ 에서 발급한 Access token이 존재한다면 Token을, 아니면 null을 반환하는 메서드

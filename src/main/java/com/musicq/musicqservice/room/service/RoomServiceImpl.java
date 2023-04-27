@@ -23,7 +23,9 @@ import io.openvidu.java.client.OpenViduJavaClientException;
 import io.openvidu.java.client.Session;
 import io.openvidu.java.client.SessionProperties;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -109,7 +111,8 @@ public class RoomServiceImpl implements RoomService {
 	}
 
 	@Override
-	public ResponseEntity<String> deleteRoom(String roomId) {
+	public ResponseEntity<String> deleteRoom(String roomId, HttpServletResponse cookieRes) {
+		destroyCookieToken(cookieRes);
 		ResponseEntity<String> response = restTemplate.exchange(domainUrl + "rooms/delete/{roomId}",
 			HttpMethod.DELETE, HttpEntity.EMPTY, String.class, roomId);
 		log.info(response.getStatusCode());
@@ -120,7 +123,8 @@ public class RoomServiceImpl implements RoomService {
 	}
 
 	@Override
-	public ResponseEntity<Object> searchAll(Integer page) {
+	public ResponseEntity<Object> searchAll(Integer page, HttpServletResponse cookieRes) {
+		destroyCookieToken(cookieRes);
 		String baseUrl = domainUrl + "rooms/all";
 		String searchingUrl = baseUrl + "?page=" + page;
 		ResponseEntity<Object> response = restTemplate.getForEntity(searchingUrl,
@@ -130,6 +134,15 @@ public class RoomServiceImpl implements RoomService {
 		log.info(response.getBody());
 
 		return response;
+	}
+
+	@Override
+	public void destroyCookieToken(HttpServletResponse cookieRes) {
+		Cookie cookie = new Cookie("OVJSESSIONID", null);
+		cookie.setPath("/");
+		cookie.setHttpOnly(true);
+		cookie.setMaxAge(0);
+		cookieRes.addCookie(cookie);
 	}
 }
 

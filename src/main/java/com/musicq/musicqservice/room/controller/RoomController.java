@@ -21,6 +21,7 @@ import com.musicq.musicqservice.room.service.RoomService;
 import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -62,9 +63,10 @@ public class RoomController {
 	// 방 삭제(DELETE)
 	@DeleteMapping("/delete/{roomId}")
 	public ResponseEntity<String> deleteRoom(
-		@Valid @PathVariable("roomId") String roomId
+		@Valid @PathVariable("roomId") String roomId,
+		@Valid HttpServletResponse cookieRes
 	) {
-		return roomService.deleteRoom(roomId);
+		return roomService.deleteRoom(roomId, cookieRes);
 	}
 
 	/*// 방 전체 조회(Paging 처리)
@@ -84,7 +86,8 @@ public class RoomController {
 	// 추 후에 React를 만든 후에 어떻게 해야될지 고민해봐야될 것 같음.
 	@GetMapping(value = "/all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<ResponseEntity<Object>> searchAll(
-		@Valid @RequestParam(value = "page", required = false) Integer page
+		@Valid @RequestParam(value = "page", required = false) Integer page,
+		@Valid HttpServletResponse cookieRes
 	) {
 		if (page == null) {
 			page = 1;
@@ -93,7 +96,7 @@ public class RoomController {
 		Integer rambdaPage = page;
 		// 10초 주기로 응답을 해주기 위한 Flux 객체
 		Flux<ResponseEntity<Object>> delayed = Mono.fromCallable(() -> {
-				return roomService.searchAll(rambdaPage);
+				return roomService.searchAll(rambdaPage, cookieRes);
 			})
 			.repeat()
 			.delayElements(Duration.ofSeconds(10));

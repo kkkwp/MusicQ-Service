@@ -64,7 +64,7 @@ public class MailServiceImpl implements MailService {
 			String setFrom = setFromEmail;
 			String htmlContent1 = "<h2>MuisicQ 이메일 인증</h2>";
 			String key = createAuthKey();
-			String htmlContent2 = "<h3>인증 번호는 " + key + " 입니다, 회원가입 페이지로 돌아가서 6자리 코드를 입력해 주세요.</h3>";
+			String htmlContent2 = "<h3>인증 번호는 " + key + " 입니다, 회원가입 페이지로 돌아가서 6자리 코드를 입력해 주세요 제한시간은 3분입니다.</h3>";
 
 			MimeMessage message = javaMailSender.createMimeMessage();
 			MimeMessageHelper httpMail = new MimeMessageHelper(message, true, "UTF-8");

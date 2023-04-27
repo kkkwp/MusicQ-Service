@@ -25,7 +25,9 @@ public interface RoomService {
 
 	ResponseEntity<String> deleteRoom(String roomId, HttpServletResponse cookieRes);
 
-	ResponseEntity<Object> searchAll(Integer page, HttpServletResponse cookieRes);
+	ResponseEntity<Object> searchAll(Integer page, HttpServletRequest request, HttpServletResponse cookieRes);
 
 	void destroyCookieToken(HttpServletResponse cookieRes);
+
+	void chkAndDestroyTokenInCookie(HttpServletRequest request, HttpServletResponse cookieRes);
 }

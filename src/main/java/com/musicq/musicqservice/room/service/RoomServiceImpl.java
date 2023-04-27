@@ -123,8 +123,9 @@ public class RoomServiceImpl implements RoomService {
 	}
 
 	@Override
-	public ResponseEntity<Object> searchAll(Integer page, HttpServletResponse cookieRes) {
-		destroyCookieToken(cookieRes);
+	public ResponseEntity<Object> searchAll(Integer page, HttpServletRequest request, HttpServletResponse cookieRes) {
+		chkAndDestroyTokenInCookie(request, cookieRes);
+
 		String baseUrl = domainUrl + "rooms/all";
 		String searchingUrl = baseUrl + "?page=" + page;
 		ResponseEntity<Object> response = restTemplate.getForEntity(searchingUrl,
@@ -143,6 +144,22 @@ public class RoomServiceImpl implements RoomService {
 		cookie.setHttpOnly(true);
 		cookie.setMaxAge(0);
 		cookieRes.addCookie(cookie);
+	}
+
+	@Override
+	public void chkAndDestroyTokenInCookie(HttpServletRequest request, HttpServletResponse cookieRes) {
+		// 클라이언트 쿠키 정보 가져오기
+		Cookie[] cookies = request.getCookies();
+
+		// Cookie 값 중 해당 서비스에서 발급한 헤더의 이름에 맞는 Cookie값이 있는지 확인
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("OVJSESSIONID")) {
+					destroyCookieToken(cookieRes);
+					break;
+				}
+			}
+		}
 	}
 }
 

@@ -87,6 +87,7 @@ public class RoomController {
 	@GetMapping(value = "/all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<ResponseEntity<Object>> searchAll(
 		@Valid @RequestParam(value = "page", required = false) Integer page,
+		@Valid HttpServletRequest request,
 		@Valid HttpServletResponse cookieRes
 	) {
 		if (page == null) {
@@ -96,10 +97,10 @@ public class RoomController {
 		Integer rambdaPage = page;
 		// 10초 주기로 응답을 해주기 위한 Flux 객체
 		Flux<ResponseEntity<Object>> delayed = Mono.fromCallable(() -> {
-				return roomService.searchAll(rambdaPage, cookieRes);
+				return roomService.searchAll(rambdaPage, request, cookieRes);
 			})
 			.repeat()
-			.delayElements(Duration.ofSeconds(10));
+			.delayElements(Duration.ofSeconds(1));
 
 		return delayed;
 	}

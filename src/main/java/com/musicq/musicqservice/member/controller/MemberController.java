@@ -122,7 +122,7 @@ public class MemberController {
 
 	// 이메일 인증
 	@GetMapping("/email/authentication/{email}")
-	public ResponseEntity<ResultResDto> emailAuthentication(
+	public ResponseEntity<ResponseDto> emailAuthentication(
 		@Valid @PathVariable("email") String email
 	) {
 		// 리퍼럴 추적 실패 메서드, 나중에 강사님한테 물어보고 해결책 찾으면 다시 살릴 수 도 있어서 주석 처리

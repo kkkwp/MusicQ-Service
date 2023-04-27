@@ -3,12 +3,15 @@ package com.musicq.musicqservice.member.service;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import com.musicq.musicqservice.common.Exception.ErrorCode;
+import com.musicq.musicqservice.common.ResponseDto;
 import com.musicq.musicqservice.member.dto.ResultResDto;
 
 import jakarta.mail.MessagingException;
@@ -56,12 +59,12 @@ public class MailServiceImpl implements MailService {
 	// 인증 코드를 API 에 던져주고 이를 Client 에 던져주는 동시에 이메일과 코드를 입력하는 링크(Client)를 같이 주면 이를 비교해서 인증하는 방식
 	// React 단에서 setTime을 지정해서 만료를 설정할 예정 약 3분이 적당 할듯.
 	@Override
-	public ResponseEntity<ResultResDto> sendMail(String email) {
+	public ResponseEntity<ResponseDto> sendMail(String email) {
 		try {
 			String setFrom = setFromEmail;
-			String htmlContent1 = "<h3>MuisicQ 이메일 인증</h3><a href='http://localhost:3000'>http://localhost:3000</a><br/>";
+			String htmlContent1 = "<h2>MuisicQ 이메일 인증</h2>";
 			String key = createAuthKey();
-			String htmlContent2 = "인증 번호는 " + key + " 입니다, 위 링크에 접속해서 입력해 주세요.";
+			String htmlContent2 = "<h3>인증 번호는 " + key + " 입니다, 회원가입 페이지로 돌아가서 6자리 코드를 입력해 주세요.</h3>";
 
 			MimeMessage message = javaMailSender.createMimeMessage();
 			MimeMessageHelper httpMail = new MimeMessageHelper(message, true, "UTF-8");
@@ -71,14 +74,24 @@ public class MailServiceImpl implements MailService {
 			httpMail.setText(htmlContent1 + htmlContent2, true);
 
 			javaMailSender.send(message);
-			ResultResDto response = new ResultResDto(key);
-			return ResponseEntity.ok(response);
+			log.warn(key);
+			HttpStatus status = HttpStatus.OK;
+			ResponseDto response = ResponseDto.builder()
+				.success(true)
+				.data(key)
+				.build();
+			return new ResponseEntity<>(response, status);
 		} catch (NullPointerException | IllegalArgumentException | HttpMessageNotWritableException |
 				 MessagingException e) {
 			log.warn(e.getStackTrace());
 			log.warn(e.getMessage());
-			ResultResDto response = new ResultResDto("Failed");
-			return ResponseEntity.badRequest().body(response);
+
+			HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+			ResponseDto response = ResponseDto.builder()
+				.success(false)
+				.error(ErrorCode.INTERNAL_SERVER_ERROR)
+				.build();
+			return new ResponseEntity<>(response, status);
 		}
 	}
 

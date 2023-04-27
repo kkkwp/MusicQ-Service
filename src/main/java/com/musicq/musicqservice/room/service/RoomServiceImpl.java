@@ -124,7 +124,7 @@ public class RoomServiceImpl implements RoomService {
 
 	@Override
 	public ResponseEntity<Object> searchAll(Integer page, HttpServletRequest request, HttpServletResponse cookieRes) {
-		chkAndDestroyTokenInCookie(request, cookieRes);
+		//chkAndDestroyTokenInCookie(request, cookieRes);
 
 		String baseUrl = domainUrl + "rooms/all";
 		String searchingUrl = baseUrl + "?page=" + page;

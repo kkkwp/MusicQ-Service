@@ -97,7 +97,6 @@ public class MemberServiceImpl implements MemberService {
 	public ResponseEntity<ResponseDto> memberInfoCheck(String id) {
 		try {
 			JSONObject jsonIdExist = new JSONObject(checkId(id).getBody());
-			log.warn(jsonIdExist);
 			if (jsonIdExist.getJSONObject("data").getLong("count") == 1) {
 				ResponseEntity<Object> result = restTemplate.getForEntity(domainUrl + "members/member/{id}",
 					Object.class, id);

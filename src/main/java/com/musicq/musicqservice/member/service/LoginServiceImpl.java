@@ -1,5 +1,7 @@
 package com.musicq.musicqservice.member.service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -156,9 +158,13 @@ public class LoginServiceImpl implements LoginService {
 
 						if (redisSaveToken) {
 							// 결과
+							Map<String, String> result = new HashMap<>();
+							result.put("AccessToken", tokenInRedis);
+							result.put("UserID", id);
+
 							HttpStatus status = HttpStatus.OK;
 							ResponseDto response = ResponseDto.builder()
-								.success(true).build();
+								.success(true).data(result).build();
 							return new ResponseEntity<>(response, status);
 						} else {
 							destroyCookieToken(cookieRes);
@@ -267,7 +273,8 @@ public class LoginServiceImpl implements LoginService {
 	// httpHeader 에 Set-Cookie 로 add해서 응답하기 위해서 문자열 포맷으로 헤더 작성하는 메서드
 	@Override
 	public String setCookieToken(String accessToken) {
-		String cookieSet = String.format("%s=%s; Path=/; HttpOnly; Max-Age=%d", jwtHeader, accessToken, maxAge);
+		String cookieSet = String.format("%s=%s; Path=/; HttpOnly; Max-Age=%d; SameSite=Lax", jwtHeader, accessToken,
+			maxAge);
 		return cookieSet;
 	}
 
@@ -282,7 +289,7 @@ public class LoginServiceImpl implements LoginService {
 		cookie2.setPath("/");
 		cookie2.setHttpOnly(true);
 		cookie2.setMaxAge(0);
-		
+
 		response.addCookie(cookie2);
 		response.addCookie(cookie1);
 	}

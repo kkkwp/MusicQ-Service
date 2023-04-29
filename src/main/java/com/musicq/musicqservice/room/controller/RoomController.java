@@ -1,9 +1,7 @@
 package com.musicq.musicqservice.room.controller;
 
-import java.time.Duration;
 import java.util.Map;
 
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,11 +22,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import lombok.extern.log4j.Log4j2;
 
 @RestController
 @RequiredArgsConstructor
+@Log4j2
 @RequestMapping("/api/v1/rooms")
 public class RoomController {
 
@@ -69,39 +67,43 @@ public class RoomController {
 		return roomService.deleteRoom(roomId, cookieRes);
 	}
 
-	/*// 방 전체 조회(Paging 처리)
+	// 방 전체 조회(Paging 처리)
 	@GetMapping("/all")
 	public ResponseEntity<Object> searchAll(
-		@Valid @RequestParam(value = "page", required = false) Integer page
+		@Valid @RequestParam(value = "page", required = false) Integer page,
+		@Valid HttpServletRequest request,
+		@Valid HttpServletResponse cookieRes
 	) {
 		log.info("page엔 뭐가 있을까~~~요? {}", page);
 		if (page == null) {
 			page = 1;
 		}
-		return roomService.searchAll(page);
-	}*/
+		return roomService.searchAll(page, request, cookieRes);
+	}
 
 	// 10초 주기로 Client 측으로 실시간 조회를 해줌.
 	// 근데 Client 측에서 어떤 이벤트 네임을 걸어주면 내가 필요할 때만 응답을 줄 수 있다고 알고 있음.
 	// 추 후에 React를 만든 후에 어떻게 해야될지 고민해봐야될 것 같음.
-	@GetMapping(value = "/all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<ResponseEntity<Object>> searchAll(
-		@Valid @RequestParam(value = "page", required = false) Integer page,
-		@Valid HttpServletRequest request,
-		@Valid HttpServletResponse cookieRes
-	) {
-		if (page == null) {
-			page = 1;
-		}
+	// @GetMapping(value = "/all")
+	// public Flux<ResponseEntity<Object>> searchAll(
+	// 	@Valid @RequestParam(value = "page", required = false) Integer page,
+	// 	@Valid HttpServletRequest request,
+	// 	@Valid HttpServletResponse cookieRes
+	// ) {
+	// 	if (page == null) {
+	// 		page = 1;
+	// 	}
+	//
+	// 	Integer rambdaPage = page;
+	// 	// 10초 주기로 응답을 해주기 위한 Flux 객체
+	// 	Flux<ResponseEntity<Object>> delayed = Mono.fromCallable(() -> {
+	// 			return roomService.searchAll(rambdaPage, request, cookieRes);
+	// 		})
+	// 		.repeat()
+	// 		.delayElements(Duration.ofSeconds(10));
+	//
+	// 	log.info(delayed);
+	// 	return delayed;
+	// }
 
-		Integer rambdaPage = page;
-		// 10초 주기로 응답을 해주기 위한 Flux 객체
-		Flux<ResponseEntity<Object>> delayed = Mono.fromCallable(() -> {
-				return roomService.searchAll(rambdaPage, request, cookieRes);
-			})
-			.repeat()
-			.delayElements(Duration.ofSeconds(1));
-
-		return delayed;
-	}
 }
